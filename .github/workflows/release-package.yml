@@ -1,0 +1,21 @@
+
+name: Node.js Package
+
+on:
+  workflow_dispatch:
+  push:
+    branches: 
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ghcr.io/loumonthjack/portfolio-generator
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16

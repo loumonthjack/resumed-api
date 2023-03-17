@@ -1,0 +1,38 @@
+version: '3'
+services:
+  portfolio_db:
+    container_name: portfolio-db
+    image: postgres:14
+    command: -c ssl=off
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_DB=portfolio
+      - POSTGRES_USER=postgres
+      - POSTGRES_HOST=portfolio_db
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    expose:
+      - '5432'
+    volumes: 
+      - ./postgres-data:/var/lib/postgresql/data
+  portfolio_server:
+    container_name: portfolio-server
+    image: portfolioserver:latest
+    ports:
+      - '3000:3000'
+    depends_on:
+      - portfolio_db
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@portfolio_db:5432/portfolio
+    command:
+      - bash
+      - -c
+      - |
+        npx prisma migrate dev --name init --preview-feature
+        npm run start
+networks:
+  name: null
+volumes:
+  postgres-data:

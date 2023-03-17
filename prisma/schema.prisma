@@ -1,0 +1,102 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Plan {
+  id         String    @id @default(uuid())
+  name       String    @unique
+  externalId String    @unique
+  createdAt  DateTime  @default(now())
+  Payment    Payment[]
+}
+
+model Payment {
+  id         String   @id @default(uuid())
+  status     String   @default("inactive")
+  externalId String   @unique
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+  receiptUrl String?
+  User       User     @relation(fields: [userId], references: [id])
+  userId     String   @unique
+  Plan       Plan     @relation(fields: [planId], references: [id])
+  planId     String
+}
+
+model Resume {
+  id         String @id @default(uuid())
+  bio        String
+  education  Json[]
+  experience Json[]
+  skills     Json[]
+  awards     Json[]
+  User       User   @relation(fields: [userId], references: [id])
+  userId     String @unique
+}
+
+model User {
+  id             String    @id @default(uuid())
+  email          String    @unique
+  firstName      String
+  lastName       String
+  profilePicture String?
+  externalId     String?   @unique
+  lastLogin      DateTime?
+  type           String?
+  Session        Session?
+  Resume         Resume?
+  Website        Website?
+  Document       Document?
+  Payment        Payment?
+  Social         Social?
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  code      String
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Website {
+  id           String  @id @default(uuid())
+  url          String
+  alias        String?
+  color        String?
+  status       String  @default("pending")
+  templateName String
+  User         User    @relation(fields: [userId], references: [id])
+  userId       String  @unique
+}
+
+model Document {
+  id     String  @id @default(uuid())
+  json   String?
+  html   String?
+  pdf    String?
+  txt    String?
+  User   User    @relation(fields: [userId], references: [id])
+  userId String  @unique
+}
+
+model Social {
+  id        String  @id @default(uuid())
+  github    String?
+  linkedin  String?
+  twitter   String?
+  facebook  String?
+  instagram String?
+  User      User    @relation(fields: [userId], references: [id])
+  userId    String  @unique
+}
