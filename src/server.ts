@@ -65,7 +65,7 @@ async function apolloServer(app: any, typeDefs: any, resolvers: any) {
     cache: 'bounded',
     context: async ({req}) => {
       const {authorization} = req.headers;
-      authorization
+      return authorization
         ? await authorizeSession(authorization)
         : await authorizeSession('');
     },

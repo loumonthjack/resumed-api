@@ -84,11 +84,12 @@ const createResume = async () => {
 
 const createWebsite = async () => {
   const user = await getUser();
+  if (!user) throw new Error('User not found');
   const response = await Website.create({
     templateName: 'basic',
     url: '',
     status: 'pending',
-    userId: user?.id as string,
+    userId: user.id,
     colors: '',
   });
   if (response.code !== 200) throw new Error(response.message);
