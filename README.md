@@ -77,12 +77,11 @@ To run this project, you will need to add the following environment variables to
 **Required Header:** { Authorization: Bearer `token`}
 | Body | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `getResume`      | `Query` | Get Resume of User |
-| `getResumes`      | `Query` | Get All Resumes |
-| `getWebsite`      | `Query` | Get Website of User |
-| `getWebsites`      | `Query` | Get All Websites |
-| `getUser`      | `Query` | Get User Info |
-| `getDomainAvailability(domain)`| `Query` | Check If Domain Is Available  |
+| `resume`      | `Query` | Get Resume of User |
+| `resumes`      | `Query` | Get All Resumes |
+| `website`      | `Query` | Get Website of User |
+| `websites`      | `Query` | Get All Websites |
+| `user`      | `Query` | Get User Info |
 | `createWebsite`      | `Mutation` | Create or Update Website of User |
 | `createResume`      | `Mutation` | Create Resume of User |
 | `updateResume`      | `Mutation` | Update Resume of User |
