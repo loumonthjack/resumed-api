@@ -1,8 +1,8 @@
 import path from 'path';
 import Template from './template';
 import User from './user';
-import {STATUS, AWS_HOSTED_ZONE_ID} from '../constants';
-import {UserType, WebsiteType} from '../types';
+import { STATUS, AWS_HOSTED_ZONE_ID } from '../constants';
+import { UserType, WebsiteType } from '../types';
 import {
   acm,
   cloudfront,
@@ -14,9 +14,10 @@ import {
   isDirectory,
   isLocal,
 } from '../util/helper';
-import {ErrorResponse, SuccessResponse} from '../util/message';
+import { ErrorResponse, SuccessResponse } from '../util/message';
 import WebsiteDB from '../models/website';
 import BaseService from './base';
+import { createWebsite, setBucketPolicy, setBucketPublicAccess } from './external/aws';
 const fse = require('fs-extra');
 
 interface Response {
@@ -29,53 +30,37 @@ class WebsiteService extends BaseService<'WebsiteService'> {
     const user = await User.get(userId);
     if (!user.user) return ErrorResponse(user.message);
     const website = await WebsiteDB.getByUserId(userId);
-    return this.response({website: website});
+    return this.response({ website: website });
   }
   async getAll(): Promise<Response> {
     const websites = await WebsiteDB.getAll();
-    return this.response({website: websites});
+    return this.response({ website: websites });
   }
-  async create(args: Omit<WebsiteType, 'id'>): Promise<Response> {
-    const user = await User.get(args.userId);
-    if (!user.user) return ErrorResponse(user.message);
+  async create(args: { theme: "DARK" | "LIGHT", template: "BASIC" | "MODERN" | "PROFESSIONAL", userId: UserType["id"] }): Promise<Response> {
+    const userResponse = await User.get(args.userId);
+    if (!userResponse.user) return ErrorResponse(userResponse.message);
 
     const website = await WebsiteDB.getByUserId(args.userId);
     if (!website) {
-      const oldWebsite = await buildWebApp(args, {
-        id: args.userId,
-        firstName: user.user.firstName,
-        lastName: user.user.lastName || '',
-        email: user.user.email,
-        profilePicture: user.user.profilePicture,
-        externalId: user.user.externalId,
-        lastLogin: user.user.lastLogin,
-        type: user.user.type,
-      });
+      const oldWebsite = await buildWebApp({ ...args, status: "pending", url: "" }, userResponse.user);
       if (oldWebsite.code !== 200) return ErrorResponse(oldWebsite.message);
-      return this.response({website: oldWebsite.website});
+      return this.response({ website: oldWebsite.website });
+      
     }
+    
     const newWebsite = await buildWebApp(
-      {...args, id: website.id},
-      {
-        id: args.userId,
-        firstName: user.user.firstName,
-        lastName: user.user.lastName,
-        email: user.user.email,
-        profilePicture: user.user.profilePicture,
-        externalId: user.user.externalId,
-        lastLogin: user.user.lastLogin,
-        type: user.user.type,
-      }
+      { ...args, id: website.id, status: "pending", url: "" },
+      userResponse.user
     );
     if (newWebsite.code !== 200) return ErrorResponse(newWebsite.message);
-    return this.response({website: newWebsite.website});
+    return this.response({ website: newWebsite.website });
   }
   async delete(userId: string): Promise<Response> {
     const user = await User.get(userId);
     if (!user.user) return ErrorResponse(user.message);
     const website = await WebsiteDB.delete(userId);
     if (!website) return ErrorResponse();
-    return this.response({website: website});
+    return this.response({ website: website });
   }
   async getDomainStatus(domain: string) {
     const getDomainAvailability = async (domain: string) => {
@@ -89,79 +74,58 @@ class WebsiteService extends BaseService<'WebsiteService'> {
     const status = await getDomainAvailability(domain).catch((err: any) => {
       return ErrorResponse(err.message);
     });
-    return this.response({field: status});
+    return this.response({ field: status });
   }
 }
 
 const Website = new WebsiteService();
 export default Website;
 
-class Builder {
+export class Builder {
   user: UserType;
   status = STATUS.PENDING;
   constructor(user: UserType) {
     this.user = user;
   }
   userInfo = () => {
-    return {...this.user, folder: `../tmp/${this.user.id}`};
+    return { ...this.user };
   };
   userWebsite = () => {
     return {
-      name: `${this.userInfo().firstName}-${this.userInfo().lastName}${
-        isLocal ? '.local' : ''
-      }.resumed.website`,
-      bucket: `${this.userInfo().firstName}-${this.userInfo().lastName}${
-        isLocal ? '.local' : ''
-      }.resumed.website.s3-website.${config.region}.amazonaws.com`,
-      url: `http://${this.userInfo().firstName}-${this.userInfo().lastName}${
-        isLocal ? '.local' : ''
-      }.resumed.website.s3-website.${config.region}.amazonaws.com`,
+      name: `${this.userInfo().firstName}-${this.userInfo().lastName}${isLocal ? '.local' : ''
+        }.resumed.website`,
+      bucket: `${this.userInfo().firstName}-${this.userInfo().lastName}${isLocal ? '.local' : ''
+        }.resumed.website.s3-website.${config.region}.amazonaws.com`,
+      url: `http://${this.userInfo().firstName}-${this.userInfo().lastName}${isLocal ? '.local' : ''
+        }.resumed.website.s3-website.${config.region}.amazonaws.com`,
     };
-  };
-  deleteTempFolder = async () => {
-    await fse.remove(path.join(__dirname, this.userInfo().folder));
   };
   newS3Website = async () => {
     const params = {
       Bucket: this.userWebsite().name,
-      ACL: 'public-read',
       CreateBucketConfiguration: {
         LocationConstraint: config.region,
       },
+      ObjectOwnership: 'ObjectWriter',
     };
     await s3
       .createBucket(params)
       .promise()
       .catch((err: any) => {
+        console.log(err);
         if (err.code === 'BucketAlreadyOwnedByYou') {
-          return this.userWebsite().url;
+          return;
         }
       });
     // if bucket return already own message then return url
-    await s3.waitFor('bucketExists', {Bucket: `${params.Bucket}`}).promise();
-    const policy = await s3
-      .putBucketPolicy({
-        Bucket: `${params.Bucket}`,
-        Policy: JSON.stringify({
-          Version: '2012-10-17',
-          Statement: [
-            {
-              Sid: 'PublicReadGetObject',
-              Effect: 'Allow',
-              Principal: '*',
-              Action: ['s3:GetObject'],
-              Resource: [`arn:aws:s3:::${params.Bucket}/*`],
-            },
-          ],
-        }),
-      })
-      .promise()
-      .catch((err: any) => {
-        return null;
-      });
-    if (!policy) {
+    await s3.waitFor('bucketExists', { Bucket: `${params.Bucket}` }).promise().catch((err: any) => {
       return null;
-    }
+    });
+
+    await setBucketPublicAccess(this.userWebsite().name);
+
+    await setBucketPolicy(this.userWebsite().name);
+    
     const website = await s3
       .putBucketWebsite({
         Bucket: this.userWebsite().name,
@@ -183,8 +147,8 @@ class Builder {
     }
     return this.userWebsite().url;
   };
-  templateToS3 = async () => {
-    const userTempFolder = path.join(__dirname, this.userInfo().folder);
+  templateToS3 = async (folder: string) => {
+    const userTempFolder = path.join(__dirname, folder);
     const indexFile = await fse.pathExists(
       path.join(userTempFolder, 'index.html')
     );
@@ -239,13 +203,8 @@ class Builder {
     });
     return Promise.all(promises);
   };
-  newTemplate = async (templateName: string, colors: string) => {
-    const template = new Template(templateName, colors, this.user);
-    const userTemplate = template.create();
-    if (!userTemplate) {
-      return null;
-    }
-    return await userTemplate;
+  newTemplate = async (template: string, theme: string) => {
+    return await new Template(template, theme, this.user).create(this.userWebsite().name)
   };
   newSubDomain = async (domain: string) => {
     const params = {
@@ -441,29 +400,31 @@ export const buildWebApp = async (
   if (!startBuilding) {
     const newWebsite = await WebsiteDB.create({
       userId: website.userId,
-      templateName: website.templateName,
+      template: website.template,
       url: '',
       status: STATUS.ERROR,
       alias: null,
-      color: null,
+      theme: website.theme,
     });
     if (!newWebsite) return ErrorResponse();
   }
   if (website.id) {
-    await WebsiteDB.update(website.id, {
-      ...website,
+    await WebsiteDB.update(user.id, {
+      userId: website.userId,
+      template: website.template,
+      url: '',
       status: startBuilding.status,
       alias: website.alias || null,
-      color: website.colors || null,
+      theme: website.theme,
     });
   } else {
     await WebsiteDB.create({
       userId: website.userId,
-      templateName: website.templateName,
+      template: website.template,
       url: '',
       status: startBuilding.status,
       alias: website.alias || null,
-      color: website.colors || null,
+      theme: website.theme,
     });
   }
 
@@ -473,7 +434,6 @@ export const buildWebApp = async (
     await WebsiteDB.update(website.userId, {
       ...website,
       status: STATUS.ERROR,
-      color: website.colors || null,
       alias: website.alias || null,
     });
     console.log('Step 1/5: Could not create S3 bucket');
@@ -482,15 +442,13 @@ export const buildWebApp = async (
   website.url = bucket;
 
   const domain = await startBuilding.newSubDomain(
-    `${user.firstName}-${user.lastName}${
-      isLocal ? '.local' : ''
+    `${user.firstName}-${user.lastName}${isLocal ? '.local' : ''
     }.resumed.website`
   );
   if (!domain) {
     await WebsiteDB.update(website.userId, {
       ...website,
       status: STATUS.ERROR,
-      color: website.colors || null,
       alias: website.alias || null,
     });
     console.log('Step 2/5: Could not create Route53 subdomain');
@@ -499,41 +457,38 @@ export const buildWebApp = async (
   website.alias = domain;
 
   const buildWebsite = await startBuilding.newTemplate(
-    website.templateName,
-    website.colors
+    website.template,
+    website.theme,
   );
   if (!buildWebsite) {
     await WebsiteDB.update(website.userId, {
       ...website,
       status: website.status,
-      color: website.colors || null,
       alias: website.alias || null,
     });
     console.log('Step 3/5: Could not build template');
     return ErrorResponse('Step 3/5: Template could not be built');
   }
-
+  /*
   const uploadWebsite = await startBuilding.templateToS3();
   if (!uploadWebsite) {
     await WebsiteDB.update(website.userId, {
       ...website,
       status: website.status,
-      color: website.colors || null,
       alias: website.alias || null,
     });
     console.log('Step 4/5: Could not upload template to S3');
     return ErrorResponse('Step 4/5: Template could not be uploaded to S3');
   }
-  await startBuilding.deleteTempFolder();
+  await startBuilding.deleteTempFolder();*/
   const updateWebsite = await WebsiteDB.update(website.userId, {
     ...website,
     status: STATUS.COMPLETED,
-    color: website.colors || null,
     alias: website.alias || null,
   });
   if (!updateWebsite) {
     console.log('Step 5/5: Could not update website');
     return ErrorResponse('Step 5/5: Could not update website');
   }
-  return SuccessResponse({website: updateWebsite});
+  return SuccessResponse({ website: updateWebsite });
 };

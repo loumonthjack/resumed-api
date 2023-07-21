@@ -20,12 +20,12 @@ const Register = (routeName: string): Router =>
       return response.status(400).send(ERROR.MESSAGE.MISSING);
     }
 
-    const auth = await Authorize.register(
-      email.toLowerCase().trim(),
-      firstName.toLowerCase().trim(),
-      lastName.toLowerCase().trim(),
+    const auth = await Authorize.register({
+      email: email.toLowerCase().trim(),
+      firstName: firstName.toLowerCase().trim(),
+      lastName: lastName.toLowerCase().trim(),
       profilePicture
-    );
+  });
     await LogEvent(auth.code, 'Auth', auth, request);
     return response.status(auth.code).json({
       message: auth.message,

@@ -26,7 +26,7 @@ To run this project, you will need to add the following environment variables to
 `FRONTEND_ALIAS`
 `AWS_HOSTED_ZONE_ID`
 `JWT_SECRET_KEY`
-`AWS_PICS_BUCKET_NAME`
+`AWS_BUCKET_NAME`
 `NODE_ENV`
 `AWS_ACCESS_KEY_ID`
 `AWS_SECRET_ACCESS_KEY`

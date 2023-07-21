@@ -61,7 +61,7 @@ class PaymentService extends BaseService<'PaymentService'> {
       ...userResponse.user,
       type: userType,
     });
-    await Session.create(args.userId, String(userResponse.user.email), true);
+    await Session.create(args.userId, String(userResponse.user.email));
     return this.response({payment: payment});
   }
   async get(paymentId: string): Promise<Response> {

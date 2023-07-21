@@ -17,7 +17,7 @@ export const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || '';
 export const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || '';
 export const AWS_REGION = process.env.AWS_REGION || '';
 export const AWS_HOSTED_ZONE_ID = process.env.AWS_HOSTED_ZONE_ID || '';
-export const AWS_PICS_BUCKET_NAME = process.env.AWS_PICS_BUCKET_NAME || '';
+export const AWS_BUCKET_NAME = process.env.AWS_BUCKET_NAME || '';
 
 export const GMAIL_EMAIL = process.env.GMAIL_EMAIL || '';
 export const GMAIL_PASSWORD = process.env.GMAIL_PASSWORD || '';
@@ -41,9 +41,9 @@ export const STATUS = {
 };
 
 export const TEMPLATE = {
-  MODERN: 'modern',
-  BASIC: 'basic',
-  MINIMAL: 'minimal',
+  MODERN: 'MODERN',
+  BASIC: 'BASIC',
+  MINIMAL: 'PROFESSIONAL',
 };
 
 export const ERROR_RESPONSE = {

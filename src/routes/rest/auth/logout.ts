@@ -22,6 +22,7 @@ const Logout = (routeName: string): Router =>
 
     const auth = await Authorize.logout(email.toLowerCase());
     await LogEvent(auth.code, 'Auth', auth, request);
+    // delete cookies
     return response.status(auth.code).json({message: auth.message});
   });
 

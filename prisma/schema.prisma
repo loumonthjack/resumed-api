@@ -32,14 +32,14 @@ model Payment {
 }
 
 model Resume {
-  id         String @id @default(uuid())
+  id         String   @id @default(uuid())
   bio        String
   education  Json[]
   experience Json[]
   skills     Json[]
   awards     Json[]
-  User       User   @relation(fields: [userId], references: [id])
-  userId     String @unique
+  User       User     @relation(fields: [userId], references: [id])
+  userId     String   @unique
 }
 
 model User {
@@ -54,7 +54,6 @@ model User {
   Session        Session?
   Resume         Resume?
   Website        Website?
-  Document       Document?
   Payment        Payment?
   Social         Social?
 }
@@ -70,24 +69,14 @@ model Session {
 }
 
 model Website {
-  id           String  @id @default(uuid())
-  url          String
-  alias        String?
-  color        String?
-  status       String  @default("pending")
-  templateName String
-  User         User    @relation(fields: [userId], references: [id])
-  userId       String  @unique
-}
-
-model Document {
-  id     String  @id @default(uuid())
-  json   String?
-  html   String?
-  pdf    String?
-  txt    String?
-  User   User    @relation(fields: [userId], references: [id])
-  userId String  @unique
+  id       String  @id @default(uuid())
+  url      String
+  alias    String?
+  theme    String
+  status   String  @default("pending")
+  template String
+  User     User    @relation(fields: [userId], references: [id])
+  userId   String  @unique
 }
 
 model Social {

@@ -20,11 +20,14 @@ const Verify = (routeName: string): Router =>
       return response.status(400).json({message: ERROR.MESSAGE.MISSING});
     }
 
-    const auth = await Authorize.verify(email.toLowerCase(), code);
+    const auth = await Authorize.verify({email:email.toLowerCase(), code:code});
     await LogEvent(auth.code, 'Auth', auth, request);
+    // set cookies 
+    const token = auth.token
+    if (!token) return response.status(500).json({message: ERROR.MESSAGE.GENERIC});
     return response
       .status(auth.code)
-      .json({message: auth.message, token: auth.token});
+      .json({message: auth.message, token});
   });
 
 export default Verify;

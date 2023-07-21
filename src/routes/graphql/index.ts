@@ -1,6 +1,8 @@
 import Website from './website';
 import Resume from './resume';
 import User from './user';
+import Auth from './auth';
+import Payment from './payment';
 
 const resolvers = {
   Query: {
@@ -9,17 +11,22 @@ const resolvers = {
     websites: Website.getAll,
     website: Website.get,
     user: User.get,
+    webhook: Payment.webhook,
+    // users: User.getAll,
   },
   Mutation: {
-    //login: User.login,
-    //register: User.create,
-    //verify: User.verify,
+    login: Auth.login,
+    register: Auth.register,
+    verify: Auth.verify,
+    logout: Auth.logout,
     userUpdate: User.update,
-    resumeCreate: Resume.create,
-    resumeUpdate: Resume.update,
+    resumeUpsert: Resume.upsert,
     resumeDelete: Resume.delete,
-    websiteCreate: Website.create,
+    websiteUpsert: Website.upsert,
     websiteDelete: Website.delete,
+    resumeUpload: Resume.upload,
+    // resumeEnhance: Resume.enhance,
+    // userDelete: User.delete,
   },
 };
 

@@ -35,9 +35,9 @@ class SessionModel {
     if (!session) {
       const id = userIdOrId;
       const session = await db.delete({
-        where: {
-          userId: id,
-        },
+        where: 
+          { userId: id }
+        ,
       });
       return session ? session : null;
     }

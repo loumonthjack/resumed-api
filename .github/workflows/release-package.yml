@@ -9,7 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ghcr.io/loumonthjack/portfolio-generator
+  IMAGE_NAME: ghcr.io/loumonthjack/resumed-api
 
 jobs:
   build:

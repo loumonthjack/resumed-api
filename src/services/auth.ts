@@ -1,38 +1,42 @@
-import {Request, Response as ExpressResponse, NextFunction} from 'express';
-import {isLocal, uploadImage, DEFAULT_IMAGE} from '../util/helper';
-import {ErrorResponse, SuccessResponse} from '../util/message';
-import {LogEvent} from '../util/logger';
-import {SessionType} from '../types';
+import { Request, Response as ExpressResponse, NextFunction, query } from 'express';
+import { isLocal, DEFAULT_IMAGE } from '../util/helper';
+import { ErrorResponse, SuccessResponse } from '../util/message';
+import { LogEvent } from '../util/logger';
+import { SessionType, UserType } from '../types';
+import ggl from "graphql-tag";
 
 import Session from './session';
 import Payment from './payment';
 import User from './user';
 import SessionDB from '../models/session';
-import {AuthenticationError} from 'apollo-server-core';
-import {ERROR_RESPONSE as ERROR} from '../constants';
+import { AuthenticationError } from 'apollo-server-core';
+import { ERROR_RESPONSE as ERROR } from '../constants';
 import BaseService from './base';
+import { uploadImage } from './external/aws';
 
 interface Response {
   message?: string;
   code: number;
   token?: string;
+  user?: UserType;
+  success?: boolean;
 }
 
 class AuthService extends BaseService<'AuthService'> {
-  async register(
+  async register(data: {
     email: string,
     firstName: string,
     lastName: string,
-    profilePicture: string
-  ): Promise<Response> {
-    const oldUser = await User.getByEmail(email);
-    if (oldUser) {
+    profilePicture?: string
+  }): Promise<Response> {
+    const oldUser = await User.getByEmail(data.email);
+    if (oldUser.user) {
       return ErrorResponse('already_exist', 'User');
     }
     const response = await User.create({
-      email: email,
-      firstName: firstName,
-      lastName: lastName,
+      email: data.email.toLowerCase(),
+      firstName: data.firstName.toLowerCase(),
+      lastName: data.lastName.toLowerCase(),
       profilePicture: DEFAULT_IMAGE,
       externalId: null,
       lastLogin: new Date(),
@@ -41,9 +45,9 @@ class AuthService extends BaseService<'AuthService'> {
     if (!response.user) {
       return ErrorResponse();
     }
-    if (profilePicture) {
+    if (data.profilePicture) {
       const profileImage =
-        (await uploadImage(profilePicture, response.user.id)) || DEFAULT_IMAGE;
+        (await uploadImage(data.profilePicture, response.user.id)) || DEFAULT_IMAGE;
       await User.update({
         ...response.user,
         profilePicture: profileImage,
@@ -60,22 +64,22 @@ class AuthService extends BaseService<'AuthService'> {
       return ErrorResponse('not_found');
     }
     await Payment.checkSubscription(activeUser.user.id);
-    const response = await Session.create(activeUser.user.id, email, null);
+    const response = await Session.create(activeUser.user.id, email);
     if (response.code !== 200) {
       return ErrorResponse();
     }
-    return this.response({login: true, user: activeUser.user});
+    return this.response({ success: true, user: activeUser.user });
   }
-  async verify(email: string, code: string): Promise<Response> {
-    const activeUser = await User.getByEmail(email);
+  async verify(data: { email: string, code: string }): Promise<Response> {
+    const activeUser = await User.getByEmail(data.email);
     if (!activeUser.user) {
       return ErrorResponse('not_found');
     }
-    const response = await Session.verify(activeUser.user.id, code);
+    const response = await Session.verify(activeUser.user.id, data.code);
     if (response.code !== 200) {
       return ErrorResponse('unauthorized');
     }
-    return this.response({token: response.session?.token});
+    return this.response({ token: response.session?.token });
   }
 
   async logout(email: string): Promise<Response> {
@@ -95,21 +99,21 @@ class AuthService extends BaseService<'AuthService'> {
     if (!session) {
       return ErrorResponse();
     }
-    return this.response({logout: true});
+    return this.response({ success: true });
   }
 
   async checkSession(
     email: string
-  ): Promise<{message?: boolean; code: number}> {
+  ): Promise<{ message?: boolean; code: number }> {
     const response = await User.getByEmail(email);
     if (!response.user) {
-      return {message: false, code: 200};
+      return { message: false, code: 200 };
     }
     const session = await SessionDB.get(response.user.id);
     if (!session) {
-      return {message: false, code: 200};
+      return { message: false, code: 200 };
     }
-    return {message: true, code: 200};
+    return { message: true, code: 200 };
   }
 
   async checkAuthorization(authToken: string | null): Promise<Response> {
@@ -129,11 +133,11 @@ class AuthService extends BaseService<'AuthService'> {
       if (deleteSession.code !== 200) {
         return ErrorResponse();
       }
-      return this.response({token: response.session?.token});
+      return this.response({ token: response.session?.token });
     }
 
     if (response.session?.verified === true) {
-      return this.response({token: response.session?.token});
+      return this.response({ token: response.session?.token });
     } else {
       return ErrorResponse('unauthorized');
     }
@@ -186,10 +190,10 @@ class MiddlewareService {
     next: NextFunction
   ) => {
     if (isLocal) return next();
-    const {authorization} = request.headers;
-    const auth = await Authorize.checkAuthorization(authorization as string);
+    const { authorization } = request.headers;
+    const auth = await Authorize.checkAuthorization(authorization || null);
     if (auth.code !== 200) {
-      return response.status(auth.code).json({message: auth.message});
+      return response.status(auth.code).json({ message: auth.message });
     }
     next();
   };
@@ -202,15 +206,22 @@ class MiddlewareService {
 }
 export const Middleware = new MiddlewareService();
 
-export const authorizeSession = async (
-  AuthHeader: string
-): Promise<SessionType | undefined> => {
-  const auth = await Session.getByToken(AuthHeader);
-  if (auth.code !== 200)
-    throw new AuthenticationError(ERROR.MESSAGE.UNAUTHORIZED);
-  if (await Middleware.removeUserSession(auth.session))
-    throw new AuthenticationError(ERROR.MESSAGE.EXPIRED);
-  if (auth.session?.verified === false)
-    throw new AuthenticationError(ERROR.MESSAGE.UNAUTHORIZED);
-  return auth.session;
+export const authorize = async (
+  token: string | undefined,
+  queryBody: any
+): Promise<SessionType | undefined | null> => {
+  const query = ggl(queryBody) as any;
+  const endpoint = query.definitions[0]["selectionSet"].selections[0].name.value;
+  const openEndpoints = [
+    "login",
+    "register",
+    "verify",
+  ];
+  if (!token) {
+    if (!openEndpoints.includes(endpoint)) throw new AuthenticationError(ERROR.MESSAGE.UNAUTHORIZED);
+    return null;
+  }
+  if (openEndpoints.includes(endpoint)) return null;
+  return (await Session.getByToken(token)).session;
+
 };

@@ -1,458 +1,398 @@
 <!DOCTYPE html>
-<html class="no-js" lang="en">
+<!--[if IE 8 ]><html class="no-js oldie ie8" lang="en"> <![endif]-->
+<!--[if IE 9 ]><html class="no-js oldie ie9" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!-->
+<html class="no-js" lang="en"> <!--<![endif]-->
 
 <head>
 
-    <!--- basic page needs
-    ================================================== -->
-    <meta charset="utf-8">
-    <title>Modern Template</title>
-    <meta name="description" content="">
-    <meta name="author" content="">
+	<!--- basic page needs
+   ================================================== -->
+	<meta charset="utf-8">
+	<title>{{title}}</title>
+	<meta name="description" content="">
+	<meta name="author" content="{{user.firstName}} {{user.lastName}}">
 
-    <!-- mobile specific metas
-    ================================================== -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- mobile specific metas
+   ================================================== -->
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-    <!-- CSS
-    ================================================== -->
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/vendor.css">
-    <link rel="stylesheet" href="css/main.css">
+	<!-- CSS
+   ================================================== -->
+	<link rel="stylesheet" href="css/base.css">
+	<link rel="stylesheet" href="css/main.css">
+	<link rel="stylesheet" href="css/vendor.css">
 
-    <!-- script
-    ================================================== -->
-    <script src="js/modernizr.js"></script>
+	<!-- script
+   ================================================== -->
+	<script src="js/modernizr.js"></script>
+	<script src="js/pace.min.js"></script>
 
-    <!-- favicons
-    ================================================== -->
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+	<!-- favicons
+	================================================== -->
+	<link rel="icon" type="image/png" href="favicon.png">
 
 </head>
 
-
 <body id="top">
+	<!-- header 
+   ================================================== -->
+	<header>
+		<div class="row">
 
-    <!-- preloader
-    ================================================== -->
-    <div id="preloader">
-        <div id="loader" class="dots-jump">
-            <div></div>
-            <div></div>
-            <div></div>
-        </div>
-    </div>
-
-    <!-- header
-    ================================================== -->
-    <header class="s-header">
-
-        <div class="header-logo">
-            <a class="site-logo" href="index.html">
-                <!--
-                <img src="images/logo.svg" alt="Homepage">-->
-            </a>
-        </div> <!-- end header-logo -->
-
-        <nav class="header-nav">
-
-            <a href="#0" class="header-nav__close" title="close"><span>Close</span></a>
-
-            <h3>Navigate to</h3>
-
-            <div class="header-nav__content">
-
-                <ul class="header-nav__list">
-                    <li><a class="smoothscroll" href="#home" title="home">Home</a></li>
-                    <li><a class="smoothscroll" href="#about" title="about">Work</a></li>
-                    <li><a class="smoothscroll" href="#services" title="services">Education</a></li>
-                    <li><a class="smoothscroll" href="#contact" title="contact">Contact</a></li>
-                </ul>
-
-                <p>Resume bio</p>
-
-                <ul class="header-nav__social">
-                    <li>
-                        <a href="#0"><i class="fab fa-facebook"></i></a>
-                    </li>
-                    <li>
-                        <a href="#0"><i class="fab fa-twitter"></i></a>
-                    </li>
-                    <li>
-                        <a href="#0"><i class="fab fa-instagram"></i></a>
-                    </li>
-                    <li>
-                        <a href="#0"><i class="fab fa-behance"></i></a>
-                    </li>
-                    <li>
-                        <a href="#0"><i class="fab fa-dribbble"></i></a>
-                    </li>
-                </ul>
-
-            </div> <!-- end header-nav__content -->
-
-        </nav> <!-- end header-nav -->
-
-        <a class="header-menu-toggle" href="#0">
-            <span class="header-menu-icon"></span>
-        </a>
-
-    </header> <!-- end s-header -->
-
-
-    <!-- home
-    ================================================== -->
-    <section id="home" class="s-home page-hero target-section" data-parallax="scroll"
-        data-image-src="images/hero-bg.jpg" data-natural-width=3000 data-natural-height=2000 data-position-y=center>
-
-        <div class="grid-overlay">
-            <div></div>
-        </div>
-
-        <div class="home-content">
-
-            <div class="row home-content__main">
-
-                <h1>
-                    Your Name
-                </h1>
-
-                <h3>
-                    Resume Headline
-                </h3>
-
-                <div class="home-content__button">
-                    <a href="#about" class="smoothscroll btn btn--primary btn--large">
-                        Work History
-                    </a>
-                    <a href="#contact" class="smoothscroll btn btn--large">
-                        Let's Talk
-                    </a>
-                </div>
-
-            </div> <!-- end home-content__main -->
-
-            <div class="home-content__scroll">
-                <a href="#about" class="scroll-link smoothscroll">
-                    Scroll
-                </a>
-            </div>
-
-        </div> <!-- end home-content -->
-
-        <ul class="home-social">
-            <li>
-                <a href="#0"><i class="fab fa-facebook-f" aria-hidden="true"></i><span>Facebook</span></a>
-            </li>
-            <li>
-                <a href="#0"><i class="fab fa-twitter" aria-hidden="true"></i><span>Twiiter</span></a>
-            </li>
-            <li>
-                <a href="#0"><i class="fab fa-instagram" aria-hidden="true"></i><span>Instagram</span></a>
-            </li>
-            <li>
-                <a href="#0"><i class="fab fa-behance" aria-hidden="true"></i><span>Behance</span></a>
-            </li>
-            <li>
-                <a href="#0"><i class="fab fa-dribbble" aria-hidden="true"></i><span>Dribbble</span></a>
-            </li>
-        </ul> <!-- end home-social -->
-
-    </section> <!-- end s-home -->
-
-
-    <!-- about
-    ================================================== -->
-    <section id="about" class="s-about target-section">
-
-        <div class="row section-header bit-narrow" data-aos="fade-up">
-            <div class="col-full">
-                <h3 class="subhead">Experience</h3>
-                <h1 class="display-1">
-                    Resume bio
-                </h1>
-            </div>
-        </div> <!-- end section-header -->
-
-        <div class="row bit-narrow">
-
-            <div class="about-process process block-1-2 block-tab-full">
-
-                <div class="col-block item-process" data-aos="fade-up">
-                    <div class="item-process__text">
-                        <h4 class="item-title">Position at Company Name </h4>
-                        <p> <strong>Start Date</strong>-<strong>End Date</strong><br />
-                            Job Desciption:
-                        </p>
-                    </div>
-                </div>
-                <div class="col-block item-process" data-aos="fade-up">
-                    <div class="item-process__text">
-                        <h4 class="item-title">Position at Company Name </h4>
-                        <p> <strong>Start Date</strong>-<strong>End Date</strong><br />
-                            Job Desciption:
-                        </p>
-                    </div>
-                </div>
-                <div class="col-block item-process" data-aos="fade-up">
-                    <div class="item-process__text">
-                        <h4 class="item-title">Position at Company Name </h4>
-                        <p> <strong>Start Date</strong>-<strong>End Date</strong><br />
-                            Job Desciption:
-                        </p>
-                    </div>
-                </div>
-                <div class="col-block item-process" data-aos="fade-up">
-                    <div class="item-process__text">
-                        <h4 class="item-title">Position at Company Name </h4>
-                        <p> <strong>Start Date</strong>-<strong>End Date</strong><br />
-                            Job Desciption:
-                        </p>
-                    </div>
-                </div>
-
-            </div> <!-- end process -->
-
-        </div> <!-- end row -->
-
-    </section> <!-- end s-about -->
-
-
-    <!-- services
-    ================================================== -->
-    <section id='services' class="s-services target-section darker">
-
-        <div class="row section-header bit-narrow" data-aos="fade-up">
-            <div class="col-full">
-                <h3 class="subhead">Education</h3>
-            </div>
-        </div> <!-- end section-header -->
-
-        <div class="row bit-narrow services block-1-2 block-tab-full">
-
-            <div class="col-block item-service" data-aos="fade-up">
-                <div class="item-service__icon">
-                    <i class="icon-star"></i>
-                </div>
-                <div class="item-service__text">
-                    <h3 class="item-title">School Name </h3>
-                    <p> <strong>Start Date</strong>-<strong>End Date</strong><br/>
-                        Degree Name - Field of Study
-                    </p>
-                </div>
-            </div>
-
-            <div class="col-block item-service" data-aos="fade-up">
-                <div class="item-service__icon">
-                    <i class="icon-group"></i>
-                </div>
-                <div class="item-service__text">
-                    <h3 class="item-title">School Name </h3>
-                    <p> <strong>Start Date</strong>-<strong>End Date</strong><br/>
-                        Degree Name - Field of Study
-                    </p>
-                </div>
-            </div>
-
-            <div class="col-block item-service" data-aos="fade-up">
-                <div class="item-service__icon">
-                    <i class="icon-pie-chart"></i>
-                </div>
-                <div class="item-service__text">
-                    <h3 class="item-title">School Name </h3>
-                    <p> <strong>Start Date</strong>-<strong>End Date</strong><br/>
-                        Degree Name - Field of Study
-                    </p>
-                </div>
-            </div>
-
-        </div> <!-- end services -->
-
-    </section> <!-- end s-services -->
-
-
-    <!-- clients
-    ================================================== -->
-    <section id="clients" class="s-clients target-section darker">
-
-        <div class="grid-overlay">
-            <div></div>
-        </div>
-
-        <div class="row section-header text-center narrow" data-aos="fade-up">
-            <div class="col-full">
-                <h3 class="subhead">Skills</h3>
-            </div>
-        </div> <!-- end section-header -->
-
-        <div class="row clients-wrap" data-aos="fade-up">
-            <div class="col-twelve">
-                <ul class="clients">
-                    <li><a href="#0">Skill 1</a></li>
-                    <li><a href="#0">Skill 2</a></li>
-                    <li><a href="#0">Skill 3</a></li>
-                    <li><a href="#0">Skill 4</a></li>
-                    <li><a href="#0">Skill 5</a></li>
-                    <li><a href="#0">Skill 6</a></li>
-                </ul>
-            </div>
-        </div>
-
-    </section> <!-- end s-clients -->
-
-
-    <!-- testimonies
-    ================================================== -->
-    <section class="s-testimonials">
-
-        <div class="testimonials__icon" data-aos="fade-up"></div>
-
-        <div class="row testimonials narrow">
-
-            <div class="col-full testimonials__slider" data-aos="fade-up">
-
-                <div class="testimonials__slide">
-                    <p>Certificate Description</p>
-                    <div class="testimonials__author">
-                        Certificate Name 1
-                        <span>Year Date</span>
-                    </div>
-                </div> <!-- end testimonials__slide -->
-
-                <div class="testimonials__slide">
-                    <p>Certificate Description</p>
-                    <div class="testimonials__author">
-                        Certificate Name 2
-                        <span>Year Date</span>
-                    </div>
-                </div> <!-- end testimonials__slide -->
-
-                <div class="testimonials__slide">
-                    <p>Certificate Description</p>
-                    <div class="testimonials__author">
-                        Certificate Name 3
-                        <span>Year Date</span>
-                    </div>
-                </div> <!-- end testimonials__slide -->
-
-            </div> <!-- end testimonials__slider -->
-
-        </div> <!-- end testimonials -->
-
-    </section> <!-- end s-testimonials -->
-
-
-    <!-- contact
-    ================================================== -->
-    <section id="contact" class="s-contact target-section">
-
-        <div class="grid-overlay">
-            <div></div>
-        </div>
-
-        <div class="row section-header narrow" data-aos="fade-up">
-            <div class="col-full">
-                <h3 class="subhead">Contact</h3>
-                <h1 class="display-1">Keep In Touch</h1>
-            </div>
-        </div> <!-- end section-header -->
-
-        <div class="row contact-main" data-aos="fade-up">
-            <div class="col-full">
-                <p class="contact-email">
-                    <a href="mailto:#0">Your Email Address</a>
-                </p>
-            
-                <p>
-                    Your First Name &nbsp; Your Last Name
-                </p>
-
-                <ul class="contact-social">
-                    <li>
-                        <a href="#0"><i class="fab fa-facebook"></i></a>
-                    </li>
-                    <li>
-                        <a href="#0"><i class="fab fa-twitter"></i></a>
-                    </li>
-                    <li>
-                        <a href="#0"><i class="fab fa-instagram"></i></a>
-                    </li>
-                    <li>
-                        <a href="#0"><i class="fab fa-behance"></i></a>
-                    </li>
-                    <li>
-                        <a href="#0"><i class="fab fa-dribbble"></i></a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-    </section> <!-- end s-contact -->
-
-
-    <!-- footer
-    ================================================== -->
-    <footer>
-        <div class="row">
-            <div class="col-full ss-copyright">
-                <span>© Copyright Sublime 2018</span>
-                <span>Design by <a href="https://www.styleshout.com/">Styleshout</a></span>
-            </div>
-        </div>
-
-        <div class="ss-go-top">
-            <a class="smoothscroll" title="Back to Top" href="#top">Back to Top</a>
-        </div>
-    </footer>
-
-
-    <!-- photoswipe background
-    ================================================== -->
-    <div aria-hidden="true" class="pswp" role="dialog" tabindex="-1">
-
-        <div class="pswp__bg"></div>
-        <div class="pswp__scroll-wrap">
-
-            <div class="pswp__container">
-                <div class="pswp__item"></div>
-                <div class="pswp__item"></div>
-                <div class="pswp__item"></div>
-            </div>
-
-            <div class="pswp__ui pswp__ui--hidden">
-                <div class="pswp__top-bar">
-                    <div class="pswp__counter"></div><button class="pswp__button pswp__button--close"
-                        title="Close (Esc)"></button> <button class="pswp__button pswp__button--share"
-                        title="Share"></button> <button class="pswp__button pswp__button--fs"
-                        title="Toggle fullscreen"></button> <button class="pswp__button pswp__button--zoom"
-                        title="Zoom in/out"></button>
-                    <div class="pswp__preloader">
-                        <div class="pswp__preloader__icn">
-                            <div class="pswp__preloader__cut">
-                                <div class="pswp__preloader__donut"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-                    <div class="pswp__share-tooltip"></div>
-                </div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
-                <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
-                <div class="pswp__caption">
-                    <div class="pswp__caption__center"></div>
-                </div>
-            </div>
-
-        </div>
-
-    </div> <!-- end photoSwipe background -->
-
-
-    <!-- Java Script
-    ================================================== -->
-    <script src="js/jquery-3.2.1.min.js"></script>
-    <script src="js/plugins.js"></script>
-    <script src="js/main.js"></script>
+			<div class="top-bar">
+				<a class="menu-toggle" href="#"><span>Menu</span></a>
+
+				<div class="logo">
+					<a href="index.html">{{title}}</a>
+				</div>
+
+				<nav id="main-nav-wrap">
+					<ul class="main-navigation">
+						<li class="current"><a class="smoothscroll" href="#intro" title="">Home</a></li>
+						<li><a class="smoothscroll" href="#about" title="">About</a></li>
+						<li><a class="smoothscroll" href="#resume" title="">Resume</a></li>
+						<li><a class="smoothscroll" href="#contact" title="">Contact</a></li>
+					</ul>
+				</nav>
+			</div> <!-- /top-bar -->
+
+		</div> <!-- /row -->
+	</header> <!-- /header -->
+
+	<!-- intro section
+   ================================================== -->
+	<section id="intro">
+
+		<div class="intro-overlay"></div>
+
+		<div class="intro-content">
+			<div class="row">
+
+				<div class="col-twelve">
+
+					<h5>Hello, World.</h5>
+					<h1>I'm {{user.firstName}} {{user.lastName}}.</h1>
+
+					<p class="intro-position">
+						<span>{{currentPostion}}</span>
+					</p>
+
+					<a class="button stroke smoothscroll" href="#about" title="">More About Me</a>
+
+				</div>
+
+			</div>
+		</div> <!-- /intro-content -->
+
+	</section> <!-- /intro -->
+
+
+	<!-- about section
+   ================================================== -->
+	<section id="about">
+
+		<div class="row section-intro">
+			<div class="col-twelve">
+
+				<h5>About</h5>
+				<h1>Let me introduce myself.</h1>
+
+				<div class="intro-info">
+
+					<img src="{{user.profilePicture}}" alt="Profile Picture">
+
+					<p class="lead">{{resume.bio}}</p>
+				</div>
+
+			</div>
+		</div> <!-- /section-intro -->
+
+		<div class="row about-content">
+
+			<div class="col-six tab-full">
+
+				<ul class="info-list">
+					<li>
+						<strong>Fullname:</strong>
+						<span>{{user.firstName}} {{user.lastName}}</span>
+					</li>
+					<li>
+						<strong>Website:</strong>
+						<span>{{user.firstName}}-{{user.lastName}}.resumed.website</span>
+					</li>
+					<li>
+						<strong>Email:</strong>
+						<span>{{user.email}}</span>
+					</li>
+
+				</ul> <!-- /info-list -->
+
+			</div>
+
+			<div class="col-six tab-full">
+
+				<h3>Skills</h3>
+				{{#resume.skills}}
+				<ul class="skill-bars">
+					<li>
+						<div class="progress percent{{percentNumber}}"><span>{{percentNumber}}%</span></div>
+						<strong>{{name}}</strong>
+					</li>
+
+				</ul> <!-- /skill-bars -->
+				{{/resume.skills}}
+
+			</div>
+
+		</div>
+
+		<div class="row button-section">
+			<div class="col-twelve">
+				<a href="mailto:{{user.email}}" title="Hire Me" class="button stroke smoothscroll">Hire Me</a>
+				<a href="https://s3.amazonaws.com/app.resumed.website/resumes/{{user.id}}.pdf" title="Download CV"
+					class="button button-primary" download>Download CV</a>
+			</div>
+		</div>
+
+	</section> <!-- /process-->
+
+
+	<!-- resume Section
+   ================================================== -->
+	<section id="resume" class="grey-section">
+
+		<div class="row section-intro">
+			<div class="col-twelve">
+
+				<h5>Resume</h5>
+				<h1>More of my credentials.</h1>
+
+
+			</div>
+		</div> <!-- /section-intro-->
+
+		<div class="row resume-timeline">
+
+			<div class="col-twelve resume-header">
+
+				<h2>Work Experience</h2>
+
+			</div> <!-- /resume-header -->
+
+			<div class="col-twelve">
+
+				<div class="timeline-wrap">
+					{{#resume.experience}}
+					<div class="timeline-block">
+
+						<div class="timeline-ico">
+							<i class="fa fa-briefcase"></i>
+						</div>
+
+						<div class="timeline-header">
+							<h3>{{position}}</h3>
+							<p>{{start}} - {{end}}</p>
+						</div>
+
+						<div class="timeline-content">
+							<h4>{{company}}</h4>
+							<p>{{description}}</p>
+						</div>
+
+					</div> <!-- /timeline-block -->
+					{{/resume.experience}}
+
+
+				</div> <!-- /timeline-wrap -->
+
+			</div> <!-- /col-twelve -->
+
+		</div> <!-- /resume-timeline -->
+
+		<div class="row resume-timeline">
+
+			<div class="col-twelve resume-header">
+
+				<h2>Education</h2>
+
+			</div> <!-- /resume-header -->
+
+			<div class="col-twelve">
+
+				<div class="timeline-wrap">
+					{{#resume.education}}
+					<div class="timeline-block">
+
+						<div class="timeline-ico">
+							<i class="fa fa-graduation-cap"></i>
+						</div>
+
+						<div class="timeline-header">
+							<h3>{{degree}}</h3>
+							<p>{{start}} - {{end}}</p>
+						</div>
+
+						<div class="timeline-content">
+							<h4>{{school}}</h4>
+							<p>{{field}}</p>
+						</div>
+
+					</div> <!-- /timeline-block -->
+					{{/resume.education}}
+
+				</div> <!-- /timeline-wrap -->
+
+			</div> <!-- /col-twelve -->
+
+		</div> <!-- /resume-timeline -->
+		<div class="row resume-timeline">
+
+			<div class="col-twelve resume-header">
+
+				<h2>Achievements</h2>
+
+			</div> <!-- /resume-header -->
+
+			<div class="col-twelve">
+
+				<div class="timeline-wrap">
+					{{#resume.awards}}
+					<div class="timeline-block">
+
+						<div class="timeline-ico">
+							<i class="fa fa-long-arrow-up"></i>
+						</div>
+
+						<div class="timeline-header">
+							<h3>{{title}}</h3>
+						</div>
+
+						<div class="timeline-content">
+							<h4>{{date}}</h4>
+						</div>
+
+					</div> <!-- /timeline-block -->
+					{{/resume.awards}}
+
+				</div> <!-- /timeline-wrap -->
+
+			</div> <!-- /col-twelve -->
+
+		</div> <!-- /resume-timeline -->
+
+	</section> <!-- /features -->
+
+	<!-- CTA Section
+   ================================================== -->
+	<section id="cta" class="dark-section" style="color:darkgray">
+
+		<div class="row cta-content">
+
+			<div class="col-twelve section-ads">
+
+				<h2 class="h01"><a href="https://resumed.website">Built using Resumed</a></h2>
+
+				<p class="lead">
+					Transform your resume into a stunning website in minutes with Resumed! Take advantage of the AI
+					Assistant and choose from a variety of professional themes to get you started. Producing and
+					publishing your portfolio website has never been easier!
+					<!-- Simply type	the promocode in the box labeled “Promo Code” when placing your order. -->
+				</p>
+
+				<div class="action">
+					<a class="button button-primary large" href="https://resumed.website">Sign Up Now</a>
+				</div>
+
+			</div>
+
+		</div> <!-- /cta-content -->
+
+	</section> <!-- /cta -->
+
+
+
+
+
+	<!-- contact
+   ================================================== -->
+	<section id="contact">
+
+		<div class="row section-intro">
+			<div class="col-twelve">
+
+				<h5>Contact</h5>
+				<h1>I'd Love To Hear From You.</h1>
+
+
+			</div>
+		</div> <!-- /section-intro -->
+
+
+		<div class="row contact-info">
+
+			<div class="col-twelve">
+
+				<div class="icon">
+					<i class="icon-mail"></i>
+				</div>
+
+				<h5>Email Me At</h5>
+
+				<p>{{user.email}}
+				</p>
+
+			</div>
+
+
+
+		</div> <!-- /contact-info -->
+
+	</section> <!-- /contact -->
+
+
+	<!-- footer
+   ================================================== -->
+
+	<footer>
+		<div class="row">
+
+			<div class="col-six tab-full pull-right social">
+
+				<ul class="footer-social">
+					<li><a href="{{facebookSocial}}"><i class="fa fa-facebook"></i></a></li>
+					<li><a href="{{behanceSocial}}"><i class="fa fa-behance"></i></a></li>
+					<li><a href="{{twitterSocial}}"><i class="fa fa-twitter"></i></a></li>
+					<li><a href="{{dribbleSocial}}"><i class="fa fa-dribbble"></i></a></li>
+					<li><a href="{{instagramSocial}}"><i class="fa fa-instagram"></i></a></li>
+				</ul>
+
+			</div>
+
+			<div class="col-six tab-full">
+				<div class="copyright">
+					<span>© Copyright Kards 2016.</span>
+					<span>Design by <a href="http://www.styleshout.com/">styleshout</a></span>
+				</div>
+			</div>
+
+			<div id="go-top">
+				<a class="smoothscroll" title="Back to Top" href="#top"><i class="fa fa-long-arrow-up"></i></a>
+			</div>
+
+		</div> <!-- /row -->
+	</footer>
+
+	<div id="preloader">
+		<div id="loader"></div>
+	</div>
+
+	<!-- Java Script
+   ================================================== -->
+	<script src="js/jquery-2.1.3.min.js"></script>
+	<script src="js/plugins.js"></script>
+	<script src="js/main.js"></script>
 
 </body>
+
+</html>

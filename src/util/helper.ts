@@ -3,7 +3,7 @@ const fse = require('fs-extra');
 import {Configuration, OpenAIApi} from 'openai';
 import {
   AWS_ACCESS_KEY_ID,
-  AWS_PICS_BUCKET_NAME,
+  AWS_BUCKET_NAME,
   AWS_REGION,
   AWS_SECRET_ACCESS_KEY,
   FRONTEND_URL,
@@ -18,7 +18,7 @@ import axios from 'axios';
 import sendGrid from '@sendgrid/mail';
 
 sendGrid.setApiKey(process.env.SENDGRID_API_KEY || '');
-const MAILER = 'info@resumed.website';
+const MAILER = process.env.SENDGRID_FROM_EMAIL || '';
 
 export const DEFAULT_IMAGE =
   'https://s3.amazonaws.com/app.resumed.website/profile_pics/Default.png';
@@ -61,6 +61,8 @@ export const getFileType = async (filePath: string) => {
       return 'image/jpeg';
     case '.svg':
       return 'image/svg+xml';
+    case '.pdf':
+      return 'application/pdf';
     default:
       return 'text/plain';
   }
@@ -110,11 +112,7 @@ export const sendAuthEmail = async (email: string, code: number) => {
     <br/><br/>
     Resumed Team</p>`,
   };
-  if (!isLocal) {
-    const emailSent = await sendGrid.send(msg);
-    if (!emailSent) return false;
-  }
-  return true;
+  return await sendGrid.send(msg);
 };
 
 export const sendMagicLink = async (email: string, code: number) => {
@@ -180,7 +178,7 @@ export const uploadImage = async (file: string, userId: UserType['id']) => {
   return (
     await s3
       .upload({
-        Bucket: AWS_PICS_BUCKET_NAME,
+        Bucket: AWS_BUCKET_NAME,
         Key: `profile_pics/${userId}${isLocal ? '-local' : ''}.${type}`,
         ContentType: `image/${type}`,
         ContentEncoding: 'base64',

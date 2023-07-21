@@ -6,28 +6,33 @@ class WebsiteModel {
   async create(data: Omit<WebsiteType, 'id'>): Promise<WebsiteType | null> {
     const website = await db.create({
       data: {
-        ...data,
+        url: data.url,
+        template: data.template,
+        theme: data.theme,
+        userId: data.userId,
+        alias: data.alias,
+        status: data.status,
       },
     });
     return website ? website : null;
   }
 
-  async get(id: string): Promise<WebsiteType | null> {
+  async get(userId: string): Promise<WebsiteType | null> {
     const website = await db.findUnique({
       where: {
-        id,
+        userId,
       },
     });
     return website ? website : null;
   }
 
   async update(
-    id: string,
+    userId: string,
     data: Omit<WebsiteType, 'id'>
   ): Promise<WebsiteType | null> {
     const website = await db.update({
       where: {
-        id,
+        userId,
       },
       data: {
         ...data,

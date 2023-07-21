@@ -1,32 +1,39 @@
 import Service from '../../services/resume';
-import {ResumeType} from '../../types';
-import {LogEvent} from '../../util/logger';
+import { AwardType, EducationType, ExperienceType, ResumeType, SkillType } from '../../types';
 
 const Resume = {
-  create: async (
+  upsert: async (
     _: any,
-    args: Omit<ResumeType, 'id'>,
+    args: {
+      bio: string;
+      education?: EducationType[];
+      experience?: ExperienceType[];
+      skills?: SkillType[];
+      awards?: AwardType[];
+    },
     context: any
   ): Promise<ResumeType> => {
-    const response = await Service.create({...args, userId: context.userId});
+    const response = await Service.upsert(context.session.userId, { ...args });
     if (!response.resume) {
       throw new Error(response.message);
     }
     return response.resume;
   },
-  update: async (
+  upload: async (
     _: any,
-    args: ResumeType,
+    args: {
+      file: string;
+    },
     context: any
   ): Promise<ResumeType> => {
-    const response = await Service.update({...args, userId: context.userId});
+    const response = await Service.upload(context.session.userId, args.file);
     if (!response.resume) {
       throw new Error(response.message);
     }
     return response.resume;
   },
   get: async (parent: any, args: any, context: any): Promise<ResumeType> => {
-    const response = await Service.get(context.userId);
+    const response = await Service.get(context.session.userId);
     if (!response.resume) {
       throw new Error(response.message);
     }
@@ -37,11 +44,10 @@ const Resume = {
     if (!response.resume) {
       throw new Error(response.message);
     }
-    await LogEvent(response.code, 'Resume', response, context);
     return response.resume;
   },
   delete: async (_: any, args: string, context: any): Promise<ResumeType> => {
-    const response = await Service.delete(context.userId);
+    const response = await Service.delete(context.session.userId);
     if (!response.resume) {
       throw new Error(response.message);
     }

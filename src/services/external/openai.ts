@@ -1,5 +1,5 @@
-import {Configuration, OpenAIApi} from 'openai';
-import {OPENAI_KEY} from '../../constants';
+import { Configuration, OpenAIApi } from 'openai';
+import { OPENAI_KEY } from '../../constants';
 class OpenAI {
   private client = new OpenAIApi(
     new Configuration({
@@ -18,24 +18,19 @@ class OpenAI {
     return this.client;
   }
 
-  public complete(prompt: string) {
-    const response = this.getInstance()
+  public async complete(prompt: string) {
+    const response = await this.getInstance()
       .createCompletion({
-        model: 'text-davinci-002',
+        model: 'text-davinci-003',
         prompt: prompt,
         temperature: 0.7,
-        max_tokens: 256,
+        max_tokens: 2048,
         top_p: 1,
         frequency_penalty: 0,
         presence_penalty: 0,
       })
-      .then(data => {
-        if (data.status === 200) {
-          return data.data.choices?.[0].text;
-        }
-        return data;
-      });
-    return response;
+    if (!response.data.choices[0].text) return null;
+    return response.data.choices[0].text;
   }
 }
 const AI = new OpenAI();

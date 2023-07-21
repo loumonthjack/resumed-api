@@ -65,11 +65,11 @@ export type SessionType = {
 export type WebsiteType = {
   id?: string;
   userId: string;
-  templateName: string;
+  template: string;
   url: string;
   status: 'pending' | 'complete' | 'error';
   alias?: string;
-  colors: string;
+  theme: string;
 };
 
 export type DocumentType = {

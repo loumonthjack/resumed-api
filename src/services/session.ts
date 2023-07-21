@@ -1,9 +1,10 @@
-import {sendAuthEmail, sendMagicLink} from '../util/helper';
+import { sendAuthEmail, sendMagicLink } from '../util/helper';
 import jwt from 'jsonwebtoken';
-import {ErrorResponse, SuccessResponse} from '../util/message';
+import { ErrorResponse, SuccessResponse } from '../util/message';
 import SessionDB from '../models/session';
 import UserDB from '../models/user';
 import BaseService from './base';
+import Messenger from './external/sendgrid';
 
 interface Response {
   message?: string;
@@ -23,7 +24,7 @@ class SessionService extends BaseService<'SessionService'> {
   async create(
     userId: string,
     email: string,
-    firstTime: boolean | null
+    //firstTime: boolean | null
   ): Promise<Response> {
     const activeSession = await this.session(userId);
     if (activeSession.code === 200)
@@ -32,10 +33,14 @@ class SessionService extends BaseService<'SessionService'> {
       });
 
     const code = Math.floor(100000 + Math.random() * 900000);
+    const getUser = await UserDB.get(userId);
+    if (!getUser) return ErrorResponse();
+    
+    const firstTime = getUser.lastLogin === null;
     if (!firstTime) {
-      await sendAuthEmail(email, code);
+      await Messenger.sendAuthEmail(email, code)
     } else {
-      await sendMagicLink(email, code);
+      await Messenger.sendWelcomeEmail(email, code)
     }
 
     const expiration = new Date();
@@ -54,9 +59,9 @@ class SessionService extends BaseService<'SessionService'> {
       ...user,
       lastLogin: new Date(),
     });
-
-    if (!session) return ErrorResponse();
-    return this.response({session: session});
+    
+     if (!session) return ErrorResponse();
+    return this.response({ session: session });
   }
 
   async delete(userId: string): Promise<Response> {
@@ -66,9 +71,9 @@ class SessionService extends BaseService<'SessionService'> {
     if (!session) {
       return ErrorResponse();
     }
-
-    return this.response({session: session});
+    return this.response({ session: session });
   }
+
   async verify(userId: string, code: string): Promise<Response> {
     const active = await this.session(userId);
     if (active.code !== 200) {
@@ -100,35 +105,28 @@ class SessionService extends BaseService<'SessionService'> {
     if (!session) {
       return ErrorResponse();
     }
-    return this.response({session: {...session, token}});
+    return this.response({ session: { ...session, token } });
   }
   async session(userId: string): Promise<Response> {
     const session = await SessionDB.getByUserId(userId);
     if (!session) {
       return ErrorResponse('not_found');
     }
-    return this.response({session: session});
+    return this.response({ session: session });
   }
-  async getByToken(token: string | null): Promise<Response> {
-    if (!token) return ErrorResponse('not_found');
-
+  async getByToken(token: string): Promise<Response> {
     interface Token {
       time: string;
       userId: string;
       code: string;
     }
-    const splitToken = token.split(' ');
-    if (splitToken.length !== 2) {
-      return ErrorResponse('invalid');
-    }
-
     const jwtSecretKey = process.env.JWT_SECRET_KEY || '';
-    const data = jwt.verify(splitToken[1], jwtSecretKey) as Token;
+    const data = jwt.verify(token, jwtSecretKey) as Token;
     const session = await SessionDB.getByCode(data.code);
     if (!session) {
       return ErrorResponse('not_found');
     }
-    return this.response({session: session});
+    return this.response({ session: session });
   }
 }
 

@@ -66,6 +66,18 @@ class UserModel {
     });
     return user ? user : null;
   }
+  async getByFirstAndLastName(
+    firstName: string,
+    lastName: string
+  ): Promise<UserType[]> {
+    const users = await db.findMany({
+      where: {
+        firstName,
+        lastName,
+      },
+    });
+    return users;
+  }
 }
 const UserDB = new UserModel();
 export default UserDB;
