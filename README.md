@@ -5,8 +5,7 @@ The user will input their resume, choose a template, and then receive a link to 
 
 ## Acknowledgements
 
- - [Portfolio Template By Kaustubh Mishra](https://github.com/kaustubhai/portfolio-template)
- - [Resume Template By @gurupawar](https://github.com/gurupawar/portfolio-react)
+ - [StyleShout - Free Templates](https://styleshout.com)
 
 ## Authors
 
