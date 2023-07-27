@@ -36,38 +36,6 @@ To run this project, you will need to add the following environment variables to
 `STRIPE_WEBHOOK_KEY`
 ## API Reference
 
-#### Login
-
-```http
-  POST /auth/login
-```
-
-| Body | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `email` | `string` | **Required**. Your Email Address |
-
-#### Verify
-
-```http
-  POST /auth/verify
-```
-
-| Body | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `email` | `string` | **Required**. Your Email Address |
-| `code`  | `string` | **Required**. Your Auth Code |
-
-#### Register
-
-```http
-  POST /auth/register
-```
-
-| Body | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `email`      | `string` | **Required**. Your Email Address |
-| `firstName`      | `string` | **Required**. Your First Name |
-| `lastName`      | `string` | **Required**. Your Last Name |
 
 #### GraphQL
 
@@ -82,17 +50,23 @@ To run this project, you will need to add the following environment variables to
 | `website`      | `Query` | Get Website of User |
 | `websites`      | `Query` | Get All Websites |
 | `user`      | `Query` | Get User Info |
-| `createWebsite`      | `Mutation` | Create or Update Website of User |
-| `createResume`      | `Mutation` | Create Resume of User |
-| `updateResume`      | `Mutation` | Update Resume of User |
-| `deleteResume`      | `Mutation` | Delete Resume of User |
+| `websiteUpsert`      | `Mutation` | Create or Update Website of User |
+| `resumeUpsert`      | `Mutation` | Create or Update Resume of User |
+| `websiteDelete`      | `Mutation` | Delete Website of User |
+| `resumeUpload`      | `Mutation` | Upload and Save Resume of User |
+| `userUpdate`      | `Mutation` | Update User Info |
+| `login`      | `Mutation` | Login User, Sends Auth Code via Email |
+| `verify`      | `Mutation` | Verify User, Takes Auth Code and Starts Session |
+| `logout`      | `Mutation` | End Session, Logout User |
+| `register`      | `Mutation` | Create User |
+
 ## Installation
 
 
 ```LOCAL
 Run Locally: 
 
-cd portfolio-server
+cd resumed-backend
 touch .env
 nvm use 17
 npm install
@@ -103,21 +77,12 @@ npm start
 ```DOCKER
 Run in Container:
 
-cd portfolio-server
+cd resumed-backend
 touch .env
-docker build --pull --rm -f "Dockerfile" -t portfolioserver:latest "."
+docker build --pull --rm -f "Dockerfile" -t resumed_api:latest "."
 docker compose -f "docker-compose.yaml" up -d --build
 ```
     
-## Features
-
-- Create S3 Web Hosting Bucket
-- Upload Files to S3
-- Generate Random Quote
-- Generate Answer from AI
-- Inject Data Into JS/HTML File
-- Generate Website with Resume Data
-
 
 ## Tech Stack
 
