@@ -96,7 +96,7 @@ docker compose -f "docker-compose.yaml" up -d --build
 
 ~~- Choose From Multiple React Templates~~
 
-- Generate Subdomains for All Sites
+~~- Generate Subdomains for All Sites `username.resumed.website`~~
 
 - Generate a SSL Certificate & CDN Distribution
 

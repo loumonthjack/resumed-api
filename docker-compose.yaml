@@ -1,31 +1,31 @@
 version: '3'
 services:
-  portfolio_db:
-    container_name: portfolio-db
+  resumed_db:
+    container_name: resumed-db
     image: postgres:14
     command: -c ssl=off
     ports:
       - '5432:5432'
     environment:
-      - POSTGRES_DB=portfolio
+      - POSTGRES_DB=resumed
       - POSTGRES_USER=postgres
-      - POSTGRES_HOST=portfolio_db
+      - POSTGRES_HOST=resumed_db
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_PORT=5432
       - POSTGRES_HOST_AUTH_METHOD=trust
     expose:
       - '5432'
-    volumes: 
+    volumes:
       - ./postgres-data:/var/lib/postgresql/data
-  portfolio_server:
-    container_name: portfolio-server
-    image: portfolioserver:latest
+  resumed_server:
+    container_name: resumed-server
+    image: resumed_api:latest
     ports:
-      - '3000:3000'
+      - '4000:4000'
     depends_on:
-      - portfolio_db
+      - resumed_db
     environment:
-      DATABASE_URL: postgres://postgres:postgres@portfolio_db:5432/portfolio
+      DATABASE_URL: postgres://postgres:postgres@resumed_db:5432/resumed
     command:
       - bash
       - -c
