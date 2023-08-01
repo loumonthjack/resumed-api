@@ -9,7 +9,10 @@
     "start:dev": "nodemon src/server.ts",
     "migration:dev": "npx prisma migrate dev --name init",
     "seed": "ts-node prisma/seed.ts",
-    "test": "jest"
+    "test": "jest",
+    "build": "tsc",
+    "docker:build": "docker build -t resumed_server:latest .",
+    "docker:run": "docker compose -f docker-compose.yaml up -d --build"
   },
   "author": "",
   "license": "ISC",

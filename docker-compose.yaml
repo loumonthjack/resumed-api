@@ -19,7 +19,7 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
   resumed_server:
     container_name: resumed-server
-    image: resumed_api:latest
+    image: resumed_server:latest
     ports:
       - '4000:4000'
     depends_on:
