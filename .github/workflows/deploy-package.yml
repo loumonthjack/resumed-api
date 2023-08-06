@@ -8,6 +8,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ghcr.io/loumonthjack/resumed-api
+  NODE_ENV: development
 
 jobs:
   deploy:
@@ -15,7 +16,7 @@ jobs:
     permissions:
       contents: read
       packages: write
-    environment: development
+    environment: ${{ env.NODE_ENV }}
     steps:
     - name: Login to Github Packages
       run: echo "${{ secrets.GITHUB_TOKEN }}" | sudo docker login ghcr.io -u ${{ github.actor }} --password-stdin 
@@ -24,4 +25,4 @@ jobs:
     - name: Delete Old Container
       run: sudo docker rm -f resumed-api
     - name: Run New Container
-      run: sudo docker run -d --name resumed-api -e NODE_ENV=$NODE_ENV DATABASE_URL=${{ secrets.DATABASE_URL }} SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }} SENDGRID_FROM_EMAIL=${{ secrets.SENDGRID_FROM_EMAIL }} OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} -p 4000:4000 ${{ env.IMAGE_NAME }}:dev-${{ github.sha }}
+      run: sudo docker run -d --name resumed-api -e NODE_ENV=${{ env.NODE_ENV }} DATABASE_URL=${{ secrets.DATABASE_URL }} SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }} SENDGRID_FROM_EMAIL=${{ secrets.SENDGRID_FROM_EMAIL }} OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} -p 4000:4000 ${{ env.IMAGE_NAME }}:dev-${{ github.sha }}
