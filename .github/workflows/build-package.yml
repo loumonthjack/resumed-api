@@ -25,7 +25,7 @@ jobs:
             sha=${GITHUB_SHA::8}
             ts=$(date +%s)
             if [[ "${{ github.ref_name }}" == "main" ]]; then
-              echo "::set-output name=BUILD_ID::dev-${sha}-${ts}" 
+              echo "::set-output name=BUILD_ID::latest-dev-${sha}" 
             else
               echo "::set-output name=BUILD_ID::stable-${sha}-${ts}" 
             fi

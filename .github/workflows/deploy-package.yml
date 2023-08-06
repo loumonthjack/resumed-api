@@ -25,7 +25,7 @@ jobs:
       with:
         images: ${{ env.IMAGE_NAME }}
     - name: Pull Docker Image
-      run: sudo docker pull ${{ env.IMAGE_NAME }}:dev-${{ github.sha }}-${{ steps.meta.outputs.timestamp }}
+      run: sudo docker pull ${{ env.IMAGE_NAME }}:latest-dev-${{ github.sha::8 }}
     - name: Delete Old Container
       run: sudo docker rm -f resumed-api
     - name: Run New Container
