@@ -11,7 +11,7 @@
     "seed": "ts-node prisma/seed.ts",
     "test": "jest",
     "build": "tsc",
-    "docker:build": "docker build -t resumed_server:latest .",
+    "docker:build": "docker build -t resumed_api:latest .",
     "docker:run": "docker compose -f docker-compose.yaml up -d --build"
   },
   "author": "",

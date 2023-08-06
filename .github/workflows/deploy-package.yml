@@ -13,12 +13,7 @@ jobs:
   build:
     runs-on: self-hosted
     environment: development
-
-  steps:
-    permissions:
-      contents: read
-      packages: write
-
+    steps:
       - name: Pull Docker Image
         run: sudo docker pull ${{ env.IMAGE_NAME }}:latest
       - name: Delete Old Container
