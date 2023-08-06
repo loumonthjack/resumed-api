@@ -19,8 +19,13 @@ jobs:
     steps:
     - name: Login to Github Packages
       run: echo "${{ secrets.GITHUB_TOKEN }}" | sudo docker login ghcr.io -u ${{ github.actor }} --password-stdin 
+    - name: Extract Metadata
+      id: meta
+      uses: docker/metadata-action@v3
+      with:
+        images: ${{ env.IMAGE_NAME }}
     - name: Pull Docker Image
-      run: sudo docker pull ${{ env.IMAGE_NAME }}:${{ github.event.workflow_run.outputs.BUILD_ID }}
+      run: sudo docker pull ${{ env.IMAGE_NAME }}:dev-${{ github.sha }}-${{ steps.meta.outputs.timestamp }}
     - name: Delete Old Container
       run: sudo docker rm -f resumed-api
     - name: Run New Container
