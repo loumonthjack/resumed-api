@@ -17,8 +17,6 @@ jobs:
       packages: write
     environment: development
     steps:
-    - name: Login to Github Packages
-      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin 
     - name: Pull Docker Image
       run: sudo docker pull ${{ env.IMAGE_NAME }}:latest
     - name: Delete Old Container
