@@ -1,0 +1,27 @@
+name: Resumed API CD
+
+on:
+  workflow_run:
+    workflows: ["Resumed API CI"]
+    types:
+      - completed
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ghcr.io/loumonthjack/resumed-api
+
+jobs:
+  build:
+    runs-on: self-hosted
+    environment: development
+
+  steps:
+    permissions:
+      contents: read
+      packages: write
+
+      - name: Pull Docker Image
+        run: sudo docker pull ${{ env.IMAGE_NAME }}:latest
+      - name: Delete Old Container
+        run: sudo docker rm -f resumed-api
+      - name: Run New Container
+        run: sudo docker run -d --name resumed-api -e NODE_ENV=${{ var.NODE_ENV }} DATABASE_URL=${{ secrets.DATABASE_URL }} SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }} SENDGRID_FROM_EMAIL=${{ secrets.SENDGRID_FROM_EMAIL }} OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} -p 4000:4000 ${{ env.IMAGE_NAME }}:latest

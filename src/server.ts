@@ -12,13 +12,13 @@ require('dotenv').config();
 
 import { PORT, SUCCESS_RESPONSE, SERVER_URL } from './constants';
 import { authorize } from './services/auth';
-import AuthRoute from './routes/rest/auth';
 import resolvers from './routes/graphql/index';
 import typeDefs from './routes/graphql/schema';
 import { cookieName, setCookies, isLocal } from './routes/helper';
 import { applyMiddleware } from "graphql-middleware";
 import shield from './routes/graphql/shield';
 
+// health check endpoint -- /.well-known/apollo/server-health
 async function apolloServer( typeDefs: any, resolvers: any) {
   const { rateLimitDirectiveTypeDefs, rateLimitDirectiveTransformer } =
     rateLimitDirective();
@@ -67,7 +67,6 @@ async function apolloServer( typeDefs: any, resolvers: any) {
       ApolloServerPluginInlineTrace(),
     ],
   });
-
   await graphQLServer.listen({ port: PORT  });
   console.log(SUCCESS_RESPONSE.MESSAGE.RUNNING(`🚀${SERVER_URL}/`));
 }

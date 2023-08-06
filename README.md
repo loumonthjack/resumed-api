@@ -98,7 +98,7 @@ docker compose -f "docker-compose.yaml" up -d --build
 
 ~~- Generate Subdomains for All Sites `username.resumed.website`~~
 
-- Generate a SSL Certificate & CDN Distribution
+- Generate a SSL Certificate (ACM) & CDN Distribution (CloudFront) for Each Site
 
 - Create a Custom Domain
 
