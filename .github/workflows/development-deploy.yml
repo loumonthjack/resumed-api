@@ -31,15 +31,14 @@ jobs:
         echo "DATABASE_URL=${{ secrets.DATABASE_URL }}"  >> ./.env
         echo "SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}" >> ./.env
         echo "SENDGRID_FROM_EMAIL=${{ secrets.SENDGRID_FROM_EMAIL }}" >> ./.env
+        echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> ./.env
+        echo "STRIPE_WEBHOOK_KEY_TEST=${{ secrets.STRIPE_WEBHOOK_KEY_TEST }}" >> ./.env
+        echo "STRIPE_SECRET_KEY_TEST=${{ secrets.STRIPE_SECRET_KEY_TEST }}" >> ./.env
         echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> ./.env
         echo "NODE_ENV=${{ vars.NODE_ENV }}" >> ./.env
         echo "PORT=${{ vars.PORT }}" >> ./.env
     - name: Run New Container
       run: sudo docker run -d --name resumed-api -p ${{ vars.PORT }}:${{ vars.PORT }} --env-file ./.env ${{ env.IMAGE_NAME }}:dev-${{ github.sha }}
-    - name: Create .env file
-      run: sudo docker exec resumed-api bash -c "touch ./.env"
-    - name: Create .env file inside docker container
-      run: sudo docker exec resumed-api bash -c "echo "SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}" > ./.env"
     - name: Create sendgrid.env file
       run: sudo docker exec resumed-api bash -c "touch sendgrid.env"
     - name: Create sendgrid.env file inside docker container
