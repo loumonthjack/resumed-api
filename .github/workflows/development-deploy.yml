@@ -36,6 +36,8 @@ jobs:
         echo "PORT=${{ vars.PORT }}" >> ./.env
     - name: Run New Container
       run: sudo docker run -d --name resumed-api -p ${{ vars.PORT }}:${{ vars.PORT }} --env-file ./.env ${{ env.IMAGE_NAME }}:dev-${{ github.sha }}
+    - name: Put Sendgrid API Key
+      run: sudo docker exec -it resumed-api node -e "require('dotenv').config(); console.log(process.env.SENDGRID_API_KEY)"
     - name: Stall  20 seconds
       run: sleep 20
     - name: Check Container Status
