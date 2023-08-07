@@ -24,7 +24,6 @@ jobs:
     - name: Delete Old Container
       run: sudo docker rm -f resumed-api
     - name: Run New Container
-      run: sudo docker run -d --name resumed-api -p 4000:4000 ${{ env.IMAGE_NAME }}:dev-${{ github.sha }}
+      run: sudo docker run -d --name resumed-api -p 4000:4000 -e AWS_REGION=${{ env.AWS_REGION }} DATABASE_URL=${{ secrets.DATABASE_URL }} SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }} SENDGRID_FROM_KEY=${{ secrets.SENDGRID_FROM_KEY }} OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} NODE_ENV=${{ vars.NODE_ENV }} ${{ env.IMAGE_NAME }}:dev-${{ github.sha }}
     - name: Check Container Status
       run: sudo docker ps -a
-      
