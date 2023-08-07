@@ -25,8 +25,17 @@ jobs:
       run: sudo docker pull ${{ env.IMAGE_NAME }}:dev-${{ github.sha }}
     - name: Delete Old Container
       run: sudo docker rm -f resumed-api
+    - name: Create .env file
+      run: |
+        echo "AWS_REGION=${{ secrets.AWS_REGION }}" > ./.env
+        echo "DATABASE_URL=${{ secrets.DATABASE_URL }}"  >> ./.env
+        echo "SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}" >> ./.env
+        echo "SENDGRID_FROM_EMAIL=${{ secrets.SENDGRID_FROM_EMAIL }}" >> ./.env
+        echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> ./.env
+        echo "NODE_ENV=${{ vars.NODE_ENV }}" >> ./.env
+        echo "PORT=${{ vars.PORT }}" >> ./.env
     - name: Run New Container
-      run: sudo docker run -d --name resumed-api -p 4000:4000 -e AWS_REGION=${{ secrets.AWS_REGION }} DATABASE_URL=${{ secrets.DATABASE_URL }} SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }} SENDGRID_FROM_EMAIL=${{ secrets.SENDGRID_FROM_EMAIL }} OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} NODE_ENV=${{ vars.NODE_ENV }} ${{ env.IMAGE_NAME }}:dev-${{ github.sha }}
+      run: sudo docker run -d --name resumed-api -p ${{ vars.PORT }}:${{ vars.PORT }} --env-file ./.env ${{ env.IMAGE_NAME }}:dev-${{ github.sha }}
     - name: Stall  20 seconds
       run: sleep 20
     - name: Check Container Status
