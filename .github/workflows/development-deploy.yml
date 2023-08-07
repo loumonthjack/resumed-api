@@ -39,11 +39,11 @@ jobs:
     - name: Create .env file
       run: sudo docker exec resumed-api bash -c "touch ./.env"
     - name: Create .env file inside docker container
-      run: sudo docker exec resumed-api bash -c "echo "SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }} > ./.env"
+      run: sudo docker exec resumed-api bash -c "echo "SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}" > ./.env"
     - name: Create sendgrid.env file
       run: sudo docker exec resumed-api bash -c "touch sendgrid.env"
     - name: Create sendgrid.env file inside docker container
-      run: sudo docker exec resumed-api bash -c "echo "export SENDGRID_API_KEY='${{ secrets.SENDGRID_API_KEY }}' > sendgrid.env"
+      run: sudo docker exec resumed-api bash -c "echo "export SENDGRID_API_KEY='${{ secrets.SENDGRID_API_KEY }}'" > sendgrid.env"
     - name: Stall  20 seconds
       run: sleep 20
     - name: Check Container Status
