@@ -1,5 +1,5 @@
 
-name: Resumed API CI
+name: Build API
 
 on:
   workflow_dispatch:
