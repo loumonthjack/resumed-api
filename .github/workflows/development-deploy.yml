@@ -40,7 +40,7 @@ jobs:
       run: sudo docker exec resumed-api bash -c touch .env
     - name: Create .env file inside docker container
       run: sudo docker exec resumed-api bash -c "cat > .env <<EOF
-        AWS_REGION=$AWS_REGION
+        AWS_REGION=${{ secrets.AWS_REGION }}
         DATABASE_URL=${{ secrets.DATABASE_URL }}
         SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}
         SENDGRID_FROM_EMAIL=${{ secrets.SENDGRID_FROM_EMAIL }}
