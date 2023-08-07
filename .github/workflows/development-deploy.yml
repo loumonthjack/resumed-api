@@ -41,4 +41,4 @@ jobs:
     - name: Check Container Status
       run: sudo docker ps -a
     - name: Check Container Logs
-      run: sudo docker logs --detailed resumed-api
+      run: sudo docker logs --details resumed-api
