@@ -1,0 +1,49 @@
+name: Deploy Development API
+
+on:
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ghcr.io/loumonthjack/resumed-api
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    permissions:
+      contents: read
+      packages: write
+    environment: production
+    steps:
+    - name: Login to Github Packages
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | sudo docker login ghcr.io -u ${{ github.actor }} --password-stdin 
+    - name: Cleanup Docker Images
+      run: sudo docker system prune --all --force
+    - name: Pull Docker Image
+      run: sudo docker pull ${{ env.IMAGE_NAME }}:stable-${{ github.sha }}
+    - name: Delete Old Container
+      run: sudo docker rm -f resumed-api
+    - name: Create variables file
+      run: |
+        echo "AWS_REGION=${{ secrets.AWS_REGION }}" > ./.env
+        echo "DATABASE_URL=${{ secrets.DATABASE_URL }}"  >> ./.env
+        echo "SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}" >> ./.env
+        echo "SENDGRID_FROM_EMAIL=${{ secrets.SENDGRID_FROM_EMAIL }}" >> ./.env
+        echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> ./.env
+        echo "STRIPE_WEBHOOK_KEY_TEST=${{ secrets.STRIPE_WEBHOOK_KEY_TEST }}" >> ./.env
+        echo "STRIPE_SECRET_KEY_TEST=${{ secrets.STRIPE_SECRET_KEY_TEST }}" >> ./.env
+        echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> ./.env
+        echo "NODE_ENV=${{ vars.NODE_ENV }}" >> ./.env
+        echo "PORT=${{ vars.PORT }}" >> ./.env
+    - name: Run New Container
+      run: sudo docker run -d --name resumed-api -p ${{ vars.PORT }}:${{ vars.PORT }} --env-file ./.env ${{ env.IMAGE_NAME }}:stable-${{ github.sha }}
+    - name: Create sendgrid.env file
+      run: sudo docker exec resumed-api bash -c "touch sendgrid.env"
+    - name: Create sendgrid.env file inside docker container
+      run: sudo docker exec resumed-api bash -c "echo "export SENDGRID_API_KEY='${{ secrets.SENDGRID_API_KEY }}'" > sendgrid.env"
+    - name: Stall  20 seconds
+      run: sleep 20
+    - name: Check Container Status
+      run: sudo docker ps -a
+    - name: Check Container Logs
+      run: sudo docker logs --details resumed-api
