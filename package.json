@@ -5,7 +5,7 @@
   "description": "Backend for Resumed API",
   "main": "server.ts",
   "scripts": {
-    "start": "yes | npx prisma generate && ts-node src/server.ts",
+    "start": "ts-node src/server.ts",
     "start:dev": "nodemon src/server.ts",
     "migration:dev": "npx prisma migrate dev --name init",
     "seed": "ts-node prisma/seed.ts",
