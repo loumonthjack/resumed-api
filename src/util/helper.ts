@@ -165,11 +165,11 @@ export const getCurrentEnv = (): string => {
   } else if (NODE_ENV === 'production' || NODE_ENV === 'prod') {
     return 'prod';
   }
-  return 'localhost';
+  return 'local';
 };
-export const isLocal =
-  getCurrentEnv() === 'local' || getCurrentEnv() === 'localhost';
 
+export const isLocal = getCurrentEnv() === 'local';
+export const isDev = getCurrentEnv() === 'dev';
 export const uploadImage = async (file: string, userId: UserType['id']) => {
   if (!file) {
     return null;

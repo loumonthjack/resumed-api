@@ -41,6 +41,7 @@ export type UserType = {
   profilePicture: string | null;
   externalId: string | null;
   lastLogin: Date | null;
+  isOnboarding: boolean;
   type: string | null;
 };
 

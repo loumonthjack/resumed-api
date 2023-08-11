@@ -13,6 +13,7 @@ import {
   getFileType,
   isDirectory,
   isLocal,
+  isDev,
 } from '../util/helper';
 import { ErrorResponse, SuccessResponse } from '../util/message';
 import WebsiteDB from '../models/website';
@@ -92,11 +93,11 @@ export class Builder {
   };
   userWebsite = () => {
     return {
-      name: `${this.userInfo().firstName}-${this.userInfo().lastName}${isLocal ? '.local' : ''
+      name: `${this.userInfo().firstName}-${this.userInfo().lastName}${isLocal ? '.local' : isDev ? '.dev' : ''
         }.resumed.website`,
-      bucket: `${this.userInfo().firstName}-${this.userInfo().lastName}${isLocal ? '.local' : ''
+      bucket: `${this.userInfo().firstName}-${this.userInfo().lastName}${isLocal ? '.local' : isDev ? '.dev' : ''
         }.resumed.website.s3-website.${config.region}.amazonaws.com`,
-      url: `http://${this.userInfo().firstName}-${this.userInfo().lastName}${isLocal ? '.local' : ''
+      url: `http://${this.userInfo().firstName}-${this.userInfo().lastName}${isLocal ? '.local' : isDev ? '.dev' : ''
         }.resumed.website.s3-website.${config.region}.amazonaws.com`,
     };
   };
@@ -442,7 +443,7 @@ export const buildWebApp = async (
   website.url = bucket;
 
   const domain = await startBuilding.newSubDomain(
-    `${user.firstName}-${user.lastName}${isLocal ? '.local' : ''
+    `${user.firstName}-${user.lastName}${isLocal ? '.local' : isDev ? '.dev' : ''
     }.resumed.website`
   );
   if (!domain) {

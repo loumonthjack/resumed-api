@@ -40,6 +40,7 @@ class AuthService extends BaseService<'AuthService'> {
       profilePicture: DEFAULT_IMAGE,
       externalId: null,
       lastLogin: new Date(),
+      isOnboarding: true,
       type: '',
     });
     if (!response.user) {

@@ -5,6 +5,7 @@ import SessionDB from '../models/session';
 import UserDB from '../models/user';
 import BaseService from './base';
 import Messenger from './external/sendgrid';
+import ResumeDB from '../models/resume';
 
 interface Response {
   message?: string;
@@ -35,12 +36,19 @@ class SessionService extends BaseService<'SessionService'> {
     const code = Math.floor(100000 + Math.random() * 900000);
     const getUser = await UserDB.get(userId);
     if (!getUser) return ErrorResponse();
-    
+
     const firstTime = getUser.lastLogin === null;
     if (!firstTime) {
       await Messenger.sendAuthEmail(email, code)
     } else {
       await Messenger.sendWelcomeEmail(email, code)
+    }
+    const resumeData = await ResumeDB.getByUserId(userId);
+    if (resumeData) {
+      await UserDB.update(userId, {
+        ...getUser,
+        isOnboarding: false,
+      });
     }
 
     const expiration = new Date();
@@ -59,8 +67,8 @@ class SessionService extends BaseService<'SessionService'> {
       ...user,
       lastLogin: new Date(),
     });
-    
-     if (!session) return ErrorResponse();
+
+    if (!session) return ErrorResponse();
     return this.response({ session: session });
   }
 

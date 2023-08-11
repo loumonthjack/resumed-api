@@ -22,7 +22,8 @@ interface Response {
   };
   code: number;
 }
-
+export const PREMIUM_PLAN ='PREMIUM';
+export const FREE_PLAN ='FREE';
 class PaymentService extends BaseService<'PaymentService'> {
   async create(args: {
     status: string;
@@ -54,9 +55,9 @@ class PaymentService extends BaseService<'PaymentService'> {
     if (!payment) return ErrorResponse();
     const userResponse = await User.get(args.userId);
     if (!userResponse.user) return ErrorResponse();
-    const userType = planResponse.plan.name.includes('starter')
-      ? 'starter'
-      : 'superstar';
+    const userType = planResponse.plan.name.includes(PREMIUM_PLAN)
+      ? PREMIUM_PLAN
+      : FREE_PLAN;
     await User.update({
       ...userResponse.user,
       type: userType,
@@ -171,7 +172,8 @@ class PaymentService extends BaseService<'PaymentService'> {
         lastName: name.length > 1 ? name[1].toLowerCase() : '',
         profilePicture: DEFAULT_IMAGE,
         lastLogin: null,
-        type: 'starter',
+        isOnboarding: true,
+        type: PREMIUM_PLAN,
       });
 
       const planResponse = await Plan.getByName(PLAN_TYPE.STARTER.MONTHLY);

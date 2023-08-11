@@ -32,14 +32,14 @@ model Payment {
 }
 
 model Resume {
-  id         String   @id @default(uuid())
+  id         String @id @default(uuid())
   bio        String
   education  Json[]
   experience Json[]
   skills     Json[]
   awards     Json[]
-  User       User     @relation(fields: [userId], references: [id])
-  userId     String   @unique
+  User       User   @relation(fields: [userId], references: [id])
+  userId     String @unique
 }
 
 model User {
@@ -50,6 +50,7 @@ model User {
   profilePicture String?
   externalId     String?   @unique
   lastLogin      DateTime?
+  isOnboarding   Boolean   @default(true)
   type           String?
   Session        Session?
   Resume         Resume?

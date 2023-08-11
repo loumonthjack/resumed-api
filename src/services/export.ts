@@ -3,7 +3,7 @@ import {ErrorResponse, SuccessResponse} from '../util/message';
 import prisma from '../db';
 import fs from 'fs';
 import path from 'path';
-import {isLocal, s3} from '../util/helper';
+import {isDev, isLocal, s3} from '../util/helper';
 
 interface Response {
   message?: string;
@@ -70,7 +70,7 @@ class ExportService {
     await s3
       .putObject({
         Bucket: `${user?.firstName}-${user?.lastName}${
-          isLocal ? '.local' : ''
+          isLocal ? '.local' : isDev ? '.dev' : ''
         }.resumed.website`,
         Key: `docs/${user?.firstName}-${user?.lastName}-resume.${type}`,
         Body: file,
@@ -84,7 +84,7 @@ class ExportService {
         }
       });
     return `http://${user?.firstName}-${user?.lastName}${
-      isLocal ? '.local' : ''
+      isLocal ? '.local' : isDev ? '.dev' : ''
     }.resumed.website/docs/${user?.firstName}-${user?.lastName}-resume.${type}`;
   }
   async createPdfFile(resume: any, userId: string) {
