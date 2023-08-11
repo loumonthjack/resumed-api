@@ -7,7 +7,6 @@ RUN npm install
 RUN apt-get update
 RUN apt-get install -y openssl
 RUN npx prisma generate
-RUN npx prisma db push
 # Open port 80
 EXPOSE 4000
 
