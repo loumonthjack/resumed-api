@@ -50,8 +50,14 @@ const typeDefs = gql`
     experience: [Experience]
     skills: [Skill]
     awards: [Award]
+    links: [Link]
   }
 
+  type Link {
+    name: String!
+    url: String!
+  }
+  
   type Education {
     school: String!
     degree: String!
@@ -70,10 +76,6 @@ const typeDefs = gql`
 
   type Skill {
     name: String
-  }
-
-  type Document {
-    type: [String]
   }
 
   type Award {
@@ -105,11 +107,11 @@ const typeDefs = gql`
   type Website {
     id: String!
     userId: String!
-    template: String!
+    template: TemplateEnum!
     url: String!
     status: String!
     alias: String
-    theme: String
+    theme: ThemeEnum!
   }
   enum TemplateEnum {
     BASIC
@@ -135,14 +137,7 @@ const typeDefs = gql`
     profilePicture: String
     externalId: String
     type: String
-  }
-  type Social {
-    id: String!
-    facebook: String
-    twitter: String
-    linkedin: String
-    instagram: String
-    github: String
+    isOnboarding: Boolean
   }
 `;
 
