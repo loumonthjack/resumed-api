@@ -1,5 +1,16 @@
 version: '3'
 services:
+  resumed_studio:
+    container_name: resumed-studio
+    image: resumed_api:latest
+    ports:
+      - '5555:5555'
+    depends_on:
+      - resumed_db
+      - resumed_api
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@resumed_db:5432/resumed
+    command: bash -c 'npx prisma studio'
   resumed_db:
     container_name: resumed-db
     image: postgres:14
