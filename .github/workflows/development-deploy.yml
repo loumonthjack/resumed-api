@@ -42,6 +42,7 @@ jobs:
         echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> ./.env
         echo "NODE_ENV=${{ vars.NODE_ENV }}" >> ./.env
         echo "PORT=${{ vars.PORT }}" >> ./.env
+        echo "SERVER_URL=http://api.dev.resumed.website" >> ./.env
     - name: Run New Container
       run: sudo docker run -d --name resumed-api -p ${{ vars.PORT }}:${{ vars.PORT }} --env-file ./.env ${{ env.IMAGE_NAME }}:dev-${{ github.sha }}
     - name: Run New Webhook Container
