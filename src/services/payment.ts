@@ -243,7 +243,7 @@ class PaymentService extends BaseService<'PaymentService'> {
   }
   async webhookEvent(request: Request, response: ExpressResponse) {
     const event = request.body;
-
+    console.log(event);
     if (event.type === 'charge.succeeded') {
       await this.handleCharge(event);
       return response.status(200).json({received: true});
