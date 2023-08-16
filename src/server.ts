@@ -1,4 +1,4 @@
-import { ApolloServer } from 'apollo-server';
+import { ApolloServer } from 'apollo-server-express';
 import { expressMiddleware } from '@apollo/server/express4';
 import serverlessExpress from '@vendia/serverless-express';
 import { rateLimitDirective } from 'graphql-rate-limit-directive';
@@ -17,9 +17,33 @@ import typeDefs from './routes/graphql/schema';
 import { cookieName, setCookies, isLocal } from './routes/helper';
 import { applyMiddleware } from "graphql-middleware";
 import shield from './routes/graphql/shield';
+import express from 'express';
+import {Middleware} from './services/auth';
+import AuthRoute from './routes/rest/auth';
+import http from 'http';
 
+const expressServer = async () => {
+  const app = express();
+  
+  app.use(express.json());
+  app.use(express.urlencoded({extended: true}));
+
+  app.get('/', (req, res) => {
+    res.redirect('/graphql');
+  });
+  app.get('/health-check', (req, res) => {
+    res.status(200).send('OK');
+  });
+
+  app.use(AuthRoute.webhook);
+
+  app.use(Middleware.checkAuth);
+  setInterval(Middleware.removeInvalidSessions, 1000 * 60 * 1);
+  return app;
+};
 // health check endpoint -- /.well-known/apollo/server-health
-async function apolloServer( typeDefs: any, resolvers: any) {
+async function apolloServer( app:any, typeDefs: any, resolvers: any) {
+  const httpServer  = http.createServer(app);
   const { rateLimitDirectiveTypeDefs, rateLimitDirectiveTransformer } =
     rateLimitDirective();
   const schema = makeExecutableSchema({
@@ -67,8 +91,15 @@ async function apolloServer( typeDefs: any, resolvers: any) {
       ApolloServerPluginInlineTrace(),
     ],
   });
-  await graphQLServer.listen({ port: PORT  });
+  await graphQLServer.start();
+  graphQLServer.applyMiddleware({app: app, path: '/graphql'});
+  await new Promise<void>(resolve => httpServer.listen({port: PORT}, resolve));
+
   console.log(SUCCESS_RESPONSE.MESSAGE.RUNNING(`🚀${SERVER_URL}/`));
 }
 
-apolloServer(typeDefs, resolvers);
+async function startApolloServer(typeDefs: any, resolvers: any) {
+  await apolloServer(await expressServer(), typeDefs, resolvers);
+}
+
+startApolloServer(typeDefs, resolvers);
