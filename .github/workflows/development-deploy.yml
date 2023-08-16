@@ -22,6 +22,8 @@ jobs:
       run: echo "${{ secrets.GITHUB_TOKEN }}" | sudo docker login ghcr.io -u ${{ github.actor }} --password-stdin 
     - name: Cleanup Docker Images
       run: sudo docker system prune --all --force
+    - name: Clear Space
+      run: sudo docker rmi -f ${{ env.IMAGE_NAME }}:dev-${{ github.sha }}
     - name: Pull Docker Image
       run: sudo docker pull ${{ env.IMAGE_NAME }}:dev-${{ github.sha }}
     - name: Run Docker Webhook
