@@ -1,4 +1,4 @@
-import { ApolloServer } from 'apollo-server-express';
+import { ApolloServer } from 'apollo-server';
 import { expressMiddleware } from '@apollo/server/express4';
 import serverlessExpress from '@vendia/serverless-express';
 import { rateLimitDirective } from 'graphql-rate-limit-directive';
@@ -11,16 +11,16 @@ import {
 require('dotenv').config();
 
 import { PORT, SUCCESS_RESPONSE, SERVER_URL } from './constants';
-import { authorize } from './services/auth';
+import { Middleware, authorize } from './services/auth';
 import resolvers from './routes/graphql/index';
 import typeDefs from './routes/graphql/schema';
 import { cookieName, setCookies, isLocal } from './routes/helper';
 import { applyMiddleware } from "graphql-middleware";
 import shield from './routes/graphql/shield';
-import express from 'express';
-import {Middleware} from './services/auth';
+
 import AuthRoute from './routes/rest/auth';
 import http from 'http';
+import express from 'express';
 
 const expressServer = async () => {
   const app = express();
@@ -31,10 +31,11 @@ const expressServer = async () => {
   app.get('/', (req, res) => {
     res.redirect('/graphql');
   });
-  app.get('/health-check', (req, res) => {
+  app.get('health-check', (req, res) => {
     res.status(200).send('OK');
   });
 
+  
   app.use(AuthRoute.webhook);
 
   app.use(Middleware.checkAuth);
@@ -42,8 +43,7 @@ const expressServer = async () => {
   return app;
 };
 // health check endpoint -- /.well-known/apollo/server-health
-async function apolloServer( app:any, typeDefs: any, resolvers: any) {
-  const httpServer  = http.createServer(app);
+async function apolloServer( typeDefs: any, resolvers: any) {
   const { rateLimitDirectiveTypeDefs, rateLimitDirectiveTransformer } =
     rateLimitDirective();
   const schema = makeExecutableSchema({
@@ -91,15 +91,8 @@ async function apolloServer( app:any, typeDefs: any, resolvers: any) {
       ApolloServerPluginInlineTrace(),
     ],
   });
-  await graphQLServer.start();
-  graphQLServer.applyMiddleware({app: app, path: '/graphql'});
-  await new Promise<void>(resolve => httpServer.listen({port: PORT}, resolve));
-
+  await graphQLServer.listen({ port: PORT, path: '/graphql', cors: true  });
   console.log(SUCCESS_RESPONSE.MESSAGE.RUNNING(`🚀${SERVER_URL}/`));
 }
-
-async function startApolloServer(typeDefs: any, resolvers: any) {
-  await apolloServer(await expressServer(), typeDefs, resolvers);
-}
-
-startApolloServer(typeDefs, resolvers);
+expressServer();
+apolloServer(typeDefs, resolvers);
