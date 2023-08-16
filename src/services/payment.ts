@@ -160,6 +160,7 @@ class PaymentService extends BaseService<'PaymentService'> {
     return true;
   }
   async handleCharge(event: Request['body']) {
+    if (!event.data.object.billing_details.email) return ErrorResponse();
     const response = await User.getByEmail(
       event.data.object.billing_details.email.toLowerCase()
     );
