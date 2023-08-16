@@ -8,6 +8,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ghcr.io/loumonthjack/resumed-api
+  WEBHOOK_IMAGE_NAME: ghcr.io/loumonthjack/resumed-webhook
 
 jobs:
   deploy:
@@ -23,8 +24,12 @@ jobs:
       run: sudo docker system prune --all --force
     - name: Pull Docker Image
       run: sudo docker pull ${{ env.IMAGE_NAME }}:dev-${{ github.sha }}
+    - name: Run Docker Webhook
+      run: sudo docker pull ${{ env.WEBHOOK_IMAGE_NAME }}:latest
     - name: Delete Old Container
       run: sudo docker rm -f resumed-api
+    - name: Delete Old Webhook Container
+      run: sudo docker rm -f resumed-webhook
     - name: Create variables file
       run: |
         echo "AWS_REGION=${{ secrets.AWS_REGION }}" > ./.env
@@ -39,6 +44,8 @@ jobs:
         echo "PORT=${{ vars.PORT }}" >> ./.env
     - name: Run New Container
       run: sudo docker run -d --name resumed-api -p ${{ vars.PORT }}:${{ vars.PORT }} --env-file ./.env ${{ env.IMAGE_NAME }}:dev-${{ github.sha }}
+    - name: Run New Webhook Container
+      run: sudo docker run -d --name resumed-webhook -p 5500:5500 --env-file ./.env ${{ env.WEBHOOK_IMAGE_NAME }}:latest
     - name: Create sendgrid.env file
       run: sudo docker exec resumed-api bash -c "touch sendgrid.env"
     - name: Create sendgrid.env file inside docker container
@@ -47,8 +54,6 @@ jobs:
       run: sleep 20
     - name: Update DB Schema
       run: sudo docker exec resumed-api bash -c "npm run db:push"
-    - name: Run Webhook Server
-      run: sudo docker exec resumed-api bash -c "npm run webhook"
     - name: Check Container Status
       run: sudo docker ps -a
     - name: Check Container Logs
