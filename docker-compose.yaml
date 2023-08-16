@@ -1,5 +1,16 @@
 version: '3'
 services:
+  resumed_webhook:
+    container_name: resumed-webhook
+    image: resumed_api:latest
+    ports:
+      - '5500:5500'
+    depends_on:
+      - resumed_db
+      - resumed_api
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@resumed_db:5432/resumed
+    command: bash -c 'npm run webhook'
   resumed_studio:
     container_name: resumed-studio
     image: resumed_api:latest

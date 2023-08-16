@@ -18,30 +18,6 @@ import { cookieName, setCookies, isLocal } from './routes/helper';
 import { applyMiddleware } from "graphql-middleware";
 import shield from './routes/graphql/shield';
 
-import AuthRoute from './routes/rest/auth';
-import http from 'http';
-import express from 'express';
-
-const expressServer = async () => {
-  const app = express();
-  
-  app.use(express.json());
-  app.use(express.urlencoded({extended: true}));
-
-  app.get('/', (req, res) => {
-    res.redirect('/graphql');
-  });
-  app.get('health-check', (req, res) => {
-    res.status(200).send('OK');
-  });
-
-  
-  app.use(AuthRoute.webhook);
-
-  app.use(Middleware.checkAuth);
-  setInterval(Middleware.removeInvalidSessions, 1000 * 60 * 1);
-  return app;
-};
 // health check endpoint -- /.well-known/apollo/server-health
 async function apolloServer( typeDefs: any, resolvers: any) {
   const { rateLimitDirectiveTypeDefs, rateLimitDirectiveTransformer } =
@@ -91,8 +67,7 @@ async function apolloServer( typeDefs: any, resolvers: any) {
       ApolloServerPluginInlineTrace(),
     ],
   });
-  await graphQLServer.listen({ port: PORT, path: '/graphql', cors: true  });
+  await graphQLServer.listen({ port: PORT, path: '/graphql' });
   console.log(SUCCESS_RESPONSE.MESSAGE.RUNNING(`🚀${SERVER_URL}/`));
 }
-expressServer();
 apolloServer(typeDefs, resolvers);

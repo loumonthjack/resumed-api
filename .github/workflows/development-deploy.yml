@@ -47,6 +47,8 @@ jobs:
       run: sleep 20
     - name: Update DB Schema
       run: sudo docker exec resumed-api bash -c "npm run db:push"
+    - name: Run Webhook Server
+      run: sudo docker exec resumed-api bash -c "npm run webhook"
     - name: Check Container Status
       run: sudo docker ps -a
     - name: Check Container Logs

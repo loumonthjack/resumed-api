@@ -9,5 +9,6 @@ RUN apt-get install -y openssl
 RUN npx prisma generate
 # Open port 80
 EXPOSE 4000
+EXPOSE 5500
 
 CMD [ "npm", "start" ]
