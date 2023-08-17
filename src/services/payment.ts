@@ -1,7 +1,7 @@
 import {Request, Response as ExpressResponse} from 'express';
 import {ErrorResponse, SuccessResponse} from '../util/message';
 import {DEFAULT_IMAGE, stripe} from '../util/helper';
-import {PLAN_TYPE, SUBSCRIPTION_STATUS} from '../constants';
+import {PLAN_NAME, PLAN_TYPE, SUBSCRIPTION_STATUS} from '../constants';
 import Session from './session';
 import User from './user';
 import Plan from './plan';
@@ -55,10 +55,9 @@ class PaymentService extends BaseService<'PaymentService'> {
     if (!payment) return ErrorResponse();
     const userResponse = await User.get(args.userId);
     if (!userResponse.user) return ErrorResponse();
-    console.log("planName", planResponse.plan.name)
-    const userType = planResponse.plan.name.includes(PLAN_TYPE.SUPERSTAR.YEARLY)
-      ? FREE_PLAN
-      : PREMIUM_PLAN;
+    const userType = planResponse.plan.name.includes(PLAN_NAME.PREMIUM)
+      ? PREMIUM_PLAN
+      : FREE_PLAN;
     await User.update({
       ...userResponse.user,
       type: userType,
@@ -178,7 +177,7 @@ class PaymentService extends BaseService<'PaymentService'> {
         type: PREMIUM_PLAN,
       });
 
-      const planResponse = await Plan.getByName(PLAN_TYPE.STARTER.MONTHLY);
+      const planResponse = await Plan.getByName(PLAN_NAME.PREMIUM);
       if (!planResponse.plan) return ErrorResponse();
       await this.create({
         status: SUBSCRIPTION_STATUS.ACTIVE,
@@ -192,7 +191,7 @@ class PaymentService extends BaseService<'PaymentService'> {
       response.user?.id as string
     );
     if (!payResponse) {
-      const planResponse = await Plan.getByName(PLAN_TYPE.STARTER.MONTHLY);
+      const planResponse = await Plan.getByName(PLAN_NAME.PREMIUM);
       if (!planResponse.plan) return ErrorResponse();
       await this.create({
         status: SUBSCRIPTION_STATUS.ACTIVE,

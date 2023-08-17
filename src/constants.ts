@@ -82,6 +82,11 @@ export const PLAN_TYPE = {
   },
 };
 
+export const PLAN_NAME = {
+  FREE: 'free_plan',
+  PREMIUM: 'superstar_plan',
+}
+
 export const SUBSCRIPTION_STATUS = {
   ACTIVE: 'active',
   INACTIVE: 'inactive',
