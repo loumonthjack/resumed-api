@@ -36,13 +36,7 @@ class PaymentService extends BaseService<'PaymentService'> {
     if (!planResponse.plan) return ErrorResponse();
     const expiration = new Date();
     if (
-      planResponse.plan.name === PLAN_TYPE.STARTER.MONTHLY ||
-      planResponse.plan.name === PLAN_TYPE.SUPERSTAR.MONTHLY
-    ) {
-      expiration.setMonth(expiration.getMonth() + 1);
-    } else if (
-      planResponse.plan.name === PLAN_TYPE.STARTER.YEARLY ||
-      planResponse.plan.name === PLAN_TYPE.SUPERSTAR.YEARLY
+      planResponse.plan.name === PLAN_NAME.PREMIUM
     ) {
       expiration.setFullYear(expiration.getFullYear() + 1);
     }
