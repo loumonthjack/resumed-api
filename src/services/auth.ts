@@ -117,7 +117,7 @@ class AuthService extends BaseService<'AuthService'> {
     return { message: true, code: 200 };
   }
 
-  async checkAuthorization(authToken: string | null): Promise<Response> {
+  async checkAuthorization(authToken: string): Promise<Response> {
     if (!authToken) {
       return ErrorResponse('unauthorized');
     }
@@ -192,7 +192,7 @@ class MiddlewareService {
   ) => {
     if (isLocal) return next();
     const { authorization } = request.headers;
-    const auth = await Authorize.checkAuthorization(authorization || null);
+    const auth = await Authorize.checkAuthorization(authorization!);
     if (auth.code !== 200) {
       return response.status(auth.code).json({ message: auth.message });
     }

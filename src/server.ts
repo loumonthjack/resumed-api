@@ -38,7 +38,6 @@ const expressServer = async () => {
   
   app.use(AuthRoute.webhook);
 
-  app.use(Middleware.checkAuth);
   setInterval(Middleware.removeInvalidSessions, 1000 * 60 * 1);
   
   return app;
