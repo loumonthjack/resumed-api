@@ -5,7 +5,6 @@
   "description": "Backend for Resumed API",
   "main": "server.ts",
   "scripts": {
-    "webhook": "ts-node src/webhook.ts",
     "start": "ts-node src/server.ts",
     "start:dev": "nodemon src/server.ts",
     "db:push": "npx prisma db push",
