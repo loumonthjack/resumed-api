@@ -51,7 +51,7 @@ class UserService extends BaseService<'UserService'> {
     if (!response.user) return ErrorResponse(response.message);
     
     const updatedUser = await UserDB.update(args.id, {
-      ...response,
+      ...response.user,
       ...args
     });
     if (!updatedUser) return ErrorResponse();

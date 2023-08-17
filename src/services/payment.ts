@@ -55,7 +55,7 @@ class PaymentService extends BaseService<'PaymentService'> {
     if (!payment) return ErrorResponse();
     const userResponse = await User.get(args.userId);
     if (!userResponse.user) return ErrorResponse();
-    const userType = planResponse.plan.name.includes(PREMIUM_PLAN)
+    const userType = planResponse.plan.name.includes(PLAN_TYPE.SUPERSTAR.YEARLY)
       ? PREMIUM_PLAN
       : FREE_PLAN;
     await User.update({
