@@ -30,7 +30,7 @@ export const config = {
 };
 
 const Stripe = require('stripe');
-export const stripe = Stripe(STRIPE_SECRET_KEY);
+export const stripe = Stripe(process.env.STRIPE_SECRET_KEY_TEST || '');
 
 export const s3 = new AWS.S3(config);
 export const route53 = new AWS.Route53(config);
