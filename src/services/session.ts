@@ -61,13 +61,6 @@ class SessionService extends BaseService<'SessionService'> {
       expiresAt: expiration,
     });
 
-    const user = await UserDB.get(userId);
-    if (!user) return ErrorResponse();
-    await UserDB.update(userId, {
-      ...user,
-      lastLogin: new Date(),
-    });
-
     if (!session) return ErrorResponse();
     return this.response({ session: session });
   }
@@ -113,6 +106,12 @@ class SessionService extends BaseService<'SessionService'> {
     if (!session) {
       return ErrorResponse();
     }
+    const user = await UserDB.get(userId);
+    if (!user) return ErrorResponse();
+    await UserDB.update(userId, {
+      ...user,
+      lastLogin: new Date(),
+    });
     return this.response({ session: { ...session, token } });
   }
   async session(userId: string): Promise<Response> {
