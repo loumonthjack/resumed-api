@@ -52,15 +52,7 @@ class PaymentService extends BaseService<'PaymentService'> {
     const userType = planResponse.plan.name.includes(PLAN_NAME.PREMIUM)
       ? PREMIUM_PLAN
       : FREE_PLAN;
-    if (!userResponse.user.externalId) {
-      const subscription = await stripe.subscriptions.retrieve(args.externalId);
-      if (!subscription) return ErrorResponse();
-      await User.update({
-        ...userResponse.user,
-        type: userType,
-        externalId: subscription.customer as string,
-      });
-    }
+    
     await User.update({
       ...userResponse.user,
       type: userType,
@@ -198,7 +190,7 @@ class PaymentService extends BaseService<'PaymentService'> {
       if (!planResponse.plan) return ErrorResponse();
       await this.create({
         status: SUBSCRIPTION_STATUS.ACTIVE,
-        externalId: event.data.object.id,
+        externalId: '',
         userId: response.user?.id as string,
         planId: planResponse.plan.id,
         receiptUrl: event.data.object.receipt_url,
