@@ -182,6 +182,12 @@ class PaymentService extends BaseService<'PaymentService'> {
         receiptUrl: event.data.object.receipt_url,
       });
     }
+    if(response.user && !response.user?.externalId) {
+      await User.update({
+        ...response.user,
+        externalId: event.data.object.customer,
+      });
+    }
     const payResponse = await this.getUserLatestPayment(
       response.user?.id as string
     );
