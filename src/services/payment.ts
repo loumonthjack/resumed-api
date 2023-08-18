@@ -1,7 +1,7 @@
-import {Request, Response as ExpressResponse} from 'express';
-import {ErrorResponse, SuccessResponse} from '../util/message';
-import {DEFAULT_IMAGE, stripe} from '../util/helper';
-import {PLAN_NAME, PLAN_TYPE, SUBSCRIPTION_STATUS} from '../constants';
+import { Request, Response as ExpressResponse } from 'express';
+import { ErrorResponse, SuccessResponse } from '../util/message';
+import { DEFAULT_IMAGE, stripe } from '../util/helper';
+import { PLAN_NAME, PLAN_TYPE, SUBSCRIPTION_STATUS } from '../constants';
 import Session from './session';
 import User from './user';
 import Plan from './plan';
@@ -22,8 +22,8 @@ interface Response {
   };
   code: number;
 }
-export const PREMIUM_PLAN ='PREMIUM';
-export const FREE_PLAN ='FREE';
+export const PREMIUM_PLAN = 'PREMIUM';
+export const FREE_PLAN = 'FREE';
 class PaymentService extends BaseService<'PaymentService'> {
   async create(args: {
     status: string;
@@ -52,32 +52,41 @@ class PaymentService extends BaseService<'PaymentService'> {
     const userType = planResponse.plan.name.includes(PLAN_NAME.PREMIUM)
       ? PREMIUM_PLAN
       : FREE_PLAN;
+    if (!userResponse.user.externalId) {
+      const subscription = await stripe.subscriptions.retrieve(args.externalId);
+      if (!subscription) return ErrorResponse();
+      await User.update({
+        ...userResponse.user,
+        type: userType,
+        externalId: subscription.customer as string,
+      });
+    }
     await User.update({
       ...userResponse.user,
       type: userType,
     });
     await Session.create(args.userId, String(userResponse.user.email));
-    return this.response({payment: payment});
+    return this.response({ payment: payment });
   }
   async get(paymentId: string): Promise<Response> {
     const payment = await PaymentDB.get(paymentId);
     if (!payment) return ErrorResponse();
-    return this.response({payment: payment});
+    return this.response({ payment: payment });
   }
   async getByExternalId(externalId: string): Promise<Response> {
     const payment = await PaymentDB.getByExternalId(externalId);
     if (!payment) return ErrorResponse();
-    return this.response({payment: payment});
+    return this.response({ payment: payment });
   }
   async getByUserId(userId: string): Promise<Response> {
     const payment = await PaymentDB.getByUserId(userId);
     if (!payment) return ErrorResponse();
-    return this.response({payment: payment[0]});
+    return this.response({ payment: payment[0] });
   }
   async delete(paymentId: string): Promise<Response> {
     const payment = await PaymentDB.delete(paymentId);
     if (!payment) return ErrorResponse();
-    return this.response({payment: payment});
+    return this.response({ payment: payment });
   }
   async update(
     paymentId: string,
@@ -106,7 +115,7 @@ class PaymentService extends BaseService<'PaymentService'> {
 
     const payment = await PaymentDB.update(paymentId, data);
     if (!payment) return ErrorResponse();
-    return this.response({payment: payment});
+    return this.response({ payment: payment });
   }
   getUserLatestPayment = async (id: string) => {
     const checkUserId = await this.getByUserId(id);
@@ -189,7 +198,7 @@ class PaymentService extends BaseService<'PaymentService'> {
       if (!planResponse.plan) return ErrorResponse();
       await this.create({
         status: SUBSCRIPTION_STATUS.ACTIVE,
-        externalId: '',
+        externalId: event.data.object.id,
         userId: response.user?.id as string,
         planId: planResponse.plan.id,
         receiptUrl: event.data.object.receipt_url,
@@ -241,17 +250,17 @@ class PaymentService extends BaseService<'PaymentService'> {
     console.log(event);
     if (event.type === 'charge.succeeded') {
       await this.handleCharge(event);
-      return response.status(200).json({received: true});
+      return response.status(200).json({ received: true });
     }
     if (event.type === 'customer.subscription.created') {
       await this.handleSubscription(event);
-      return response.status(200).json({received: true});
+      return response.status(200).json({ received: true });
     }
     if (event.type === 'customer.subscription.updated') {
       await this.checkSubscription(event.data.object.id);
-      return response.status(200).json({received: true});
+      return response.status(200).json({ received: true });
     }
-    return response.status(200).json({received: true});
+    return response.status(200).json({ received: true });
   }
 }
 
