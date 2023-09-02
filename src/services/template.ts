@@ -1,32 +1,37 @@
 import path from 'path';
 import fs from 'fs';
-import { ResumeType, UserType } from '../types';
+import {ResumeType, UserType} from '../types';
 import fse from 'fs-extra';
-import { newBasicApp, newMinimalApp } from '../templates/dataFiles';
-import { TEMPLATE } from '../constants';
-import { generateHeadline, getFileType, isDirectory } from '../util/helper';
-import { execSync } from 'child_process';
-import { Resume } from '@prisma/client';
+import {newBasicApp, newMinimalApp} from '../templates/dataFiles';
+import {TEMPLATE} from '../constants';
+import {generateHeadline, getFileType, isDirectory} from '../util/helper';
+import {execSync} from 'child_process';
+import {Resume} from '@prisma/client';
 import ResumeDB from '../models/resume';
 import BaseService from './base';
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 import Mustache from 'mustache';
-import { uploadToUserBucket } from './external/aws';
+import {uploadToUserBucket} from './external/aws';
 
 const BASE_PATH = '../templates';
 export const AUTH_HTML = fs
-  .readFileSync(path.join(__dirname, `${BASE_PATH}/auth.html`)).toString()
+  .readFileSync(path.join(__dirname, `${BASE_PATH}/auth.html`))
+  .toString();
 export const WELCOME_HTML = fs
-  .readFileSync(path.join(__dirname, `${BASE_PATH}/welcome.html`)).toString()
+  .readFileSync(path.join(__dirname, `${BASE_PATH}/welcome.html`))
+  .toString();
 export const MODERN_HTML = fs
-  .readFileSync(path.join(__dirname, `${BASE_PATH}/modern/index.html`)).toString()
+  .readFileSync(path.join(__dirname, `${BASE_PATH}/modern/index.html`))
+  .toString();
 export const BASIC_HTML = fs
-  .readFileSync(path.join(__dirname, `${BASE_PATH}/basic/index.html`)).toString()
+  .readFileSync(path.join(__dirname, `${BASE_PATH}/basic/index.html`))
+  .toString();
 export const MINIMAL_HTML = fs
-  .readFileSync(path.join(__dirname, `${BASE_PATH}/minimal/index.html`)).toString()
+  .readFileSync(path.join(__dirname, `${BASE_PATH}/minimal/index.html`))
+  .toString();
 export const renderTemplate = (template: any, data: any) => {
   return Mustache.render(template, data);
-}
+};
 
 class Template extends BaseService<'TemplateService'> {
   user: UserType;
@@ -96,9 +101,11 @@ class Template extends BaseService<'TemplateService'> {
       basic: BASIC_HTML,
       minimal: MINIMAL_HTML,
       modern: MODERN_HTML,
-    }
+    };
     // first letter of first name and last name
-    const title = `${this.user.firstName.charAt(0).toUpperCase()}${this.user.lastName.charAt(0).toUpperCase()}`;
+    const title = `${this.user.firstName
+      .charAt(0)
+      .toUpperCase()}${this.user.lastName.charAt(0).toUpperCase()}`;
     const resume = await this.userResume();
     if (!resume) {
       return null;
@@ -115,26 +122,60 @@ class Template extends BaseService<'TemplateService'> {
         percentNumber: `${skill.percent}`,
       };
     });
-    const experience = resume.experience && resume.experience[0] as any;
-    const newFile = renderTemplate(templates[this.templateName], { title, user: this.user, resume,  currentPostion: experience.position, lightBackground: this.theme === "light" });
+    const experience = resume.experience && (resume.experience[0] as any);
+    const newFile = renderTemplate(templates[this.templateName], {
+      title,
+      user: this.user,
+      resume,
+      currentPostion: experience.position,
+      lightBackground: this.theme === 'light',
+    });
     await uploadToUserBucket(bucket, newFile, 'index.html', this.templateName);
-    for (const file of fs.readdirSync(path.join(__dirname, `../templates/${this.templateName}`))) {
+    for (const file of fs.readdirSync(
+      path.join(__dirname, `../templates/${this.templateName}`)
+    )) {
       if (file !== 'index.html') {
         if (file.includes('.')) {
           await uploadToUserBucket(bucket, file, file, this.templateName);
         } else {
-          for (const subFile of fs.readdirSync(path.join(__dirname, `../templates/${this.templateName}/${file}`))) {
+          for (const subFile of fs.readdirSync(
+            path.join(__dirname, `../templates/${this.templateName}/${file}`)
+          )) {
             if (subFile.includes('.')) {
-              await uploadToUserBucket(bucket, subFile, `${file}/${subFile}`, this.templateName);
+              await uploadToUserBucket(
+                bucket,
+                subFile,
+                `${file}/${subFile}`,
+                this.templateName
+              );
             } else {
-              for (const subSubFile of fs.readdirSync(path.join(__dirname, `../templates/${this.templateName}/${file}/${subFile}`))) {
+              for (const subSubFile of fs.readdirSync(
+                path.join(
+                  __dirname,
+                  `../templates/${this.templateName}/${file}/${subFile}`
+                )
+              )) {
                 if (subSubFile.includes('.')) {
-                  await uploadToUserBucket(bucket, subSubFile, `${file}/${subFile}/${subSubFile}`, this.templateName);
-                }
-                else {
-                  for (const subSubSubFile of fs.readdirSync(path.join(__dirname, `../templates/${this.templateName}/${file}/${subFile}/${subSubFile}`))) {
+                  await uploadToUserBucket(
+                    bucket,
+                    subSubFile,
+                    `${file}/${subFile}/${subSubFile}`,
+                    this.templateName
+                  );
+                } else {
+                  for (const subSubSubFile of fs.readdirSync(
+                    path.join(
+                      __dirname,
+                      `../templates/${this.templateName}/${file}/${subFile}/${subSubFile}`
+                    )
+                  )) {
                     if (subSubSubFile.includes('.')) {
-                      await uploadToUserBucket(bucket, subSubSubFile, `${file}/${subFile}/${subSubFile}/${subSubSubFile}`, this.templateName);
+                      await uploadToUserBucket(
+                        bucket,
+                        subSubSubFile,
+                        `${file}/${subFile}/${subSubFile}/${subSubSubFile}`,
+                        this.templateName
+                      );
                     }
                   }
                 }
@@ -160,9 +201,7 @@ class Template extends BaseService<'TemplateService'> {
     });
     return true;
   }
-  buildApp = async (
-    dataFile: string,
-  ): Promise<boolean | null> => {
+  buildApp = async (dataFile: string): Promise<boolean | null> => {
     const installPackages = async () => {
       try {
         await execSync(`${npm} install`, {
@@ -202,8 +241,8 @@ class Template extends BaseService<'TemplateService'> {
     return true;
   };
   async writeFile(file: string): Promise<boolean | null> {
-    const override = { flag: 'r+' };
-    const create = { flag: 'ax' };
+    const override = {flag: 'r+'};
+    const create = {flag: 'ax'};
     if (this.isBasicTemplate()) {
       try {
         const dataFile = `${this.userPath()}/src/newProfile.js`;

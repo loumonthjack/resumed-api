@@ -1,18 +1,23 @@
-import { Request, Response as ExpressResponse, NextFunction, query } from 'express';
-import { isLocal, DEFAULT_IMAGE } from '../util/helper';
-import { ErrorResponse, SuccessResponse } from '../util/message';
-import { LogEvent } from '../util/logger';
-import { SessionType, UserType } from '../types';
-import ggl from "graphql-tag";
+import {
+  Request,
+  Response as ExpressResponse,
+  NextFunction,
+  query,
+} from 'express';
+import {isLocal, DEFAULT_IMAGE} from '../util/helper';
+import {ErrorResponse, SuccessResponse} from '../util/message';
+import {LogEvent} from '../util/logger';
+import {SessionType, UserType} from '../types';
+import ggl from 'graphql-tag';
 
 import Session from './session';
 import Payment from './payment';
 import User from './user';
 import SessionDB from '../models/session';
-import { AuthenticationError } from 'apollo-server-core';
-import { ERROR_RESPONSE as ERROR } from '../constants';
+import {AuthenticationError} from 'apollo-server-core';
+import {ERROR_RESPONSE as ERROR} from '../constants';
 import BaseService from './base';
-import { uploadImage } from './external/aws';
+import {uploadImage} from './external/aws';
 
 interface Response {
   message?: string;
@@ -24,10 +29,10 @@ interface Response {
 
 class AuthService extends BaseService<'AuthService'> {
   async register(data: {
-    email: string,
-    firstName: string,
-    lastName: string,
-    profilePicture?: string
+    email: string;
+    firstName: string;
+    lastName: string;
+    profilePicture?: string;
   }): Promise<Response> {
     const oldUser = await User.getByEmail(data.email);
     if (oldUser.user) {
@@ -39,20 +44,26 @@ class AuthService extends BaseService<'AuthService'> {
       lastName: data.lastName.toLowerCase(),
       profilePicture: DEFAULT_IMAGE,
       externalId: null,
-      lastLogin: new Date(),
+      lastLogin: null,
       isOnboarding: true,
-      type: '',
+      onboardingStage: 1,
+      type: 'FREE',
     });
     if (!response.user) {
       return ErrorResponse();
     }
     if (data.profilePicture) {
       const profileImage =
-        (await uploadImage(data.profilePicture, response.user.id)) || DEFAULT_IMAGE;
+        (await uploadImage(data.profilePicture, response.user.id)) ||
+        DEFAULT_IMAGE;
       await User.update({
         ...response.user,
         profilePicture: profileImage,
       });
+    }
+    const login = await Session.create(response.user.id, response.user.email);
+    if (login.code !== 200) {
+      return ErrorResponse();
     }
     return this.response({
       user: response.user,
@@ -69,9 +80,9 @@ class AuthService extends BaseService<'AuthService'> {
     if (response.code !== 200) {
       return ErrorResponse();
     }
-    return this.response({ success: true, user: activeUser.user });
+    return this.response({success: true, user: activeUser.user});
   }
-  async verify(data: { email: string, code: string }): Promise<Response> {
+  async verify(data: {email: string; code: string}): Promise<Response> {
     const activeUser = await User.getByEmail(data.email);
     if (!activeUser.user) {
       return ErrorResponse('not_found');
@@ -80,15 +91,11 @@ class AuthService extends BaseService<'AuthService'> {
     if (response.code !== 200) {
       return ErrorResponse('unauthorized');
     }
-    return this.response({ token: response.session?.token });
+    return this.response({token: response.session?.token});
   }
 
-  async logout(email: string): Promise<Response> {
-    const active = await User.getByEmail(email);
-    if (!active.user) {
-      return ErrorResponse('not_found');
-    }
-    const activeSession = await SessionDB.get(active.user.id);
+  async logout(sessionId: string): Promise<Response> {
+    const activeSession = await SessionDB.get(sessionId);
     if (!activeSession) {
       return ErrorResponse('not_found');
     }
@@ -100,21 +107,21 @@ class AuthService extends BaseService<'AuthService'> {
     if (!session) {
       return ErrorResponse();
     }
-    return this.response({ success: true });
+    return this.response({success: true});
   }
 
   async checkSession(
     email: string
-  ): Promise<{ message?: boolean; code: number }> {
+  ): Promise<{message?: boolean; code: number}> {
     const response = await User.getByEmail(email);
     if (!response.user) {
-      return { message: false, code: 200 };
+      return {message: false, code: 200};
     }
     const session = await SessionDB.get(response.user.id);
     if (!session) {
-      return { message: false, code: 200 };
+      return {message: false, code: 200};
     }
-    return { message: true, code: 200 };
+    return {message: true, code: 200};
   }
 
   async checkAuthorization(authToken: string): Promise<Response> {
@@ -134,11 +141,11 @@ class AuthService extends BaseService<'AuthService'> {
       if (deleteSession.code !== 200) {
         return ErrorResponse();
       }
-      return this.response({ token: response.session?.token });
+      return this.response({token: response.session?.token});
     }
 
     if (response.session?.verified === true) {
-      return this.response({ token: response.session?.token });
+      return this.response({token: response.session?.token});
     } else {
       return ErrorResponse('unauthorized');
     }
@@ -191,10 +198,10 @@ class MiddlewareService {
     next: NextFunction
   ) => {
     if (isLocal) return next();
-    const { authorization } = request.headers;
+    const {authorization} = request.headers;
     const auth = await Authorize.checkAuthorization(authorization!);
     if (auth.code !== 200) {
-      return response.status(auth.code).json({ message: auth.message });
+      return response.status(auth.code).json({message: auth.message});
     }
     next();
   };
@@ -212,17 +219,14 @@ export const authorize = async (
   queryBody: any
 ): Promise<SessionType | undefined | null> => {
   const query = ggl(queryBody) as any;
-  const endpoint = query.definitions[0]["selectionSet"].selections[0].name.value;
-  const openEndpoints = [
-    "login",
-    "register",
-    "verify",
-  ];
+  const endpoint =
+    query.definitions[0]['selectionSet'].selections[0].name.value;
+  const openEndpoints = ['login', 'register', 'verify'];
   if (!token) {
-    if (!openEndpoints.includes(endpoint)) throw new AuthenticationError(ERROR.MESSAGE.UNAUTHORIZED);
+    if (!openEndpoints.includes(endpoint))
+      throw new AuthenticationError(ERROR.MESSAGE.UNAUTHORIZED);
     return null;
   }
   if (openEndpoints.includes(endpoint)) return null;
   return (await Session.getByToken(token)).session;
-
 };

@@ -1,13 +1,13 @@
-import { shield, or, rule, and } from "graphql-shield";
+import {shield, or, rule, and} from 'graphql-shield';
 
 const hasAccess = () => {
-  return rule()(async (parent, args, { session }): Promise<boolean> => {
+  return rule()(async (parent, args, {session}): Promise<boolean> => {
     return !!session?.userId;
   });
 };
 
 const hasAdminAccess = () => {
-  return rule()(async (parent, args, { session }): Promise<boolean> => {
+  return rule()(async (parent, args, {session}): Promise<boolean> => {
     return session?.isAdmin;
   });
 };
@@ -24,6 +24,7 @@ export default shield(
       websites: isAuthorized, // isAdmin,
       website: isAuthorized,
       user: isAuthorized,
+      domainAvailability: isAuthorized,
       // users: isAdmin,
     },
     Mutation: {
@@ -34,9 +35,10 @@ export default shield(
       websiteUpsert: isAuthorized,
       websiteDelete: isAuthorized,
       resumeUpload: isAuthorized,
+      customDomainCreate: isAuthorized,
       // resumeEnhance: isAuthorized,
       // userDelete: isAuthorized,
     },
   },
-  { debug: true }
+  {debug: true}
 );

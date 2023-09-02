@@ -1,6 +1,7 @@
 import {gql} from 'apollo-server-core';
 
 const typeDefs = gql`
+  scalar Upload
   type Query {
     resume: Resume
     resumes: [Resume]
@@ -8,13 +9,19 @@ const typeDefs = gql`
     website: Website
     user: User
     webhook: String
+    domainAvailability(domain: String!): Boolean
   }
   type Mutation {
     login(email: String!): AuthResponse
-    logout(email: String!): AuthResponse
+    logout: AuthResponse
     verify(email: String!, code: String!): AuthVerifyResponse
-    register(email: String!, firstName: String!, lastName: String!, profilePicture: String): AuthRegisterResponse
-    websiteUpsert(template:TemplateEnum!, theme:ThemeEnum!): Website
+    register(
+      email: String!
+      firstName: String!
+      lastName: String!
+      profilePicture: String
+    ): AuthRegisterResponse
+    websiteUpsert(template: TemplateEnum!, theme: ThemeEnum!): Website
     resumeUpsert(
       bio: String
       education: [EducationInput]
@@ -24,14 +31,15 @@ const typeDefs = gql`
     ): Resume
     userUpdate(
       id: ID!
-      email: String
       firstName: String
       lastName: String
       profilePicture: String
+      isOnboarding: Boolean
     ): User
     resumeDelete(id: ID!): Resume
     websiteDelete(id: ID!): Website
-    resumeUpload(file:String): Resume
+    resumeUpload(uploadFile: Upload!): Resume
+    customDomainCreate(domain: String!): Website
   }
   type AuthResponse {
     success: Boolean
@@ -57,7 +65,7 @@ const typeDefs = gql`
     name: String!
     url: String!
   }
-  
+
   type Education {
     school: String!
     degree: String!
@@ -134,6 +142,7 @@ const typeDefs = gql`
     email: String!
     firstName: String!
     lastName: String!
+    onboardingStage: Int
     profilePicture: String
     externalId: String
     type: String

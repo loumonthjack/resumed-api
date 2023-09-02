@@ -5,6 +5,7 @@ export type ResumeType = {
   experience?: ExperienceType[];
   skills?: SkillType[];
   awards?: AwardType[];
+  links?: LinkType[];
   userId: string;
 };
 
@@ -14,6 +15,11 @@ export type EducationType = {
   field?: string;
   start?: string;
   end?: string;
+};
+
+export type LinkType = {
+  name?: string;
+  url?: string;
 };
 
 export type ExperienceType = {
@@ -42,6 +48,7 @@ export type UserType = {
   externalId: string | null;
   lastLogin: Date | null;
   isOnboarding: boolean;
+  onboardingStage: number;
   type: string | null;
 };
 

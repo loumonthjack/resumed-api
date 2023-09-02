@@ -12,6 +12,7 @@ const resolvers = {
     website: Website.get,
     user: User.get,
     webhook: Payment.webhook,
+    domainAvailability: Website.domainAvailability,
     // users: User.getAll,
   },
   Mutation: {
@@ -25,6 +26,7 @@ const resolvers = {
     websiteUpsert: Website.upsert,
     websiteDelete: Website.delete,
     resumeUpload: Resume.upload,
+    customDomainCreate: Website.createCustomDomain,
     // resumeEnhance: Resume.enhance,
     // userDelete: User.delete,
   },

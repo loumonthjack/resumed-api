@@ -1,11 +1,12 @@
-import { sendAuthEmail, sendMagicLink } from '../util/helper';
+import {sendAuthEmail, sendMagicLink} from '../util/helper';
 import jwt from 'jsonwebtoken';
-import { ErrorResponse, SuccessResponse } from '../util/message';
+import {ErrorResponse, SuccessResponse} from '../util/message';
 import SessionDB from '../models/session';
 import UserDB from '../models/user';
 import BaseService from './base';
 import Messenger from './external/sendgrid';
 import ResumeDB from '../models/resume';
+import WebsiteDB from '../models/website';
 
 interface Response {
   message?: string;
@@ -24,7 +25,7 @@ interface Response {
 class SessionService extends BaseService<'SessionService'> {
   async create(
     userId: string,
-    email: string,
+    email: string
     //firstTime: boolean | null
   ): Promise<Response> {
     const activeSession = await this.session(userId);
@@ -39,20 +40,13 @@ class SessionService extends BaseService<'SessionService'> {
 
     const firstTime = getUser.lastLogin === null;
     if (!firstTime) {
-      await Messenger.sendAuthEmail(email, code)
+      await Messenger.sendAuthEmail(email, code);
     } else {
-      await Messenger.sendWelcomeEmail(email, code)
-    }
-    const resumeData = await ResumeDB.getByUserId(userId);
-    if (resumeData) {
-      await UserDB.update(userId, {
-        ...getUser,
-        isOnboarding: false,
-      });
+      await Messenger.sendWelcomeEmail(email, code);
     }
 
     const expiration = new Date();
-    expiration.setHours(expiration.getHours() + 1);
+    expiration.setHours(expiration.getHours() + 24);
     const session = await SessionDB.create({
       userId: userId,
       code: String(code),
@@ -62,7 +56,7 @@ class SessionService extends BaseService<'SessionService'> {
     });
 
     if (!session) return ErrorResponse();
-    return this.response({ session: session });
+    return this.response({session: session});
   }
 
   async delete(userId: string): Promise<Response> {
@@ -72,7 +66,7 @@ class SessionService extends BaseService<'SessionService'> {
     if (!session) {
       return ErrorResponse();
     }
-    return this.response({ session: session });
+    return this.response({session: session});
   }
 
   async verify(userId: string, code: string): Promise<Response> {
@@ -112,14 +106,14 @@ class SessionService extends BaseService<'SessionService'> {
       ...user,
       lastLogin: new Date(),
     });
-    return this.response({ session: { ...session, token } });
+    return this.response({session: {...session, token}});
   }
   async session(userId: string): Promise<Response> {
     const session = await SessionDB.getByUserId(userId);
     if (!session) {
       return ErrorResponse('not_found');
     }
-    return this.response({ session: session });
+    return this.response({session: session});
   }
   async getByToken(token: string): Promise<Response> {
     interface Token {
@@ -133,7 +127,7 @@ class SessionService extends BaseService<'SessionService'> {
     if (!session) {
       return ErrorResponse('not_found');
     }
-    return this.response({ session: session });
+    return this.response({session: session});
   }
 }
 

@@ -47,6 +47,16 @@ class UserModel {
     id: string,
     data: Omit<UserType, 'id'>
   ): Promise<UserType | null> {
+    // lower case name and email
+    if (data.firstName) {
+      data.firstName = data.firstName.toLowerCase().trim();
+    }
+    if (data.lastName) {
+      data.lastName = data.lastName.toLowerCase().trim();
+    }
+    if (data.email) {
+      data.email = data.email.toLowerCase().trim();
+    }
     const user = await db.update({
       where: {
         id,

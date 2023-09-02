@@ -1,5 +1,12 @@
 import Service from '../../services/resume';
-import { AwardType, EducationType, ExperienceType, ResumeType, SkillType } from '../../types';
+import {
+  AwardType,
+  EducationType,
+  ExperienceType,
+  LinkType,
+  ResumeType,
+  SkillType,
+} from '../../types';
 
 const Resume = {
   upsert: async (
@@ -10,10 +17,11 @@ const Resume = {
       experience?: ExperienceType[];
       skills?: SkillType[];
       awards?: AwardType[];
+      links?: LinkType[];
     },
     context: any
   ): Promise<ResumeType> => {
-    const response = await Service.upsert(context.session.userId, { ...args });
+    const response = await Service.upsert(context.session.userId, {...args});
     if (!response.resume) {
       throw new Error(response.message);
     }
@@ -22,11 +30,14 @@ const Resume = {
   upload: async (
     _: any,
     args: {
-      file: string;
+      uploadFile: string;
     },
     context: any
   ): Promise<ResumeType> => {
-    const response = await Service.upload(context.session.userId, args.file);
+    const response = await Service.upload(
+      context.session.userId,
+      args.uploadFile
+    );
     if (!response.resume) {
       throw new Error(response.message);
     }

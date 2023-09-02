@@ -1,8 +1,8 @@
 import path from 'path';
 import Template from './template';
 import User from './user';
-import { STATUS, AWS_HOSTED_ZONE_ID } from '../constants';
-import { UserType, WebsiteType } from '../types';
+import {STATUS, AWS_HOSTED_ZONE_ID} from '../constants';
+import {UserType, WebsiteType} from '../types';
 import {
   acm,
   cloudfront,
@@ -15,10 +15,14 @@ import {
   isLocal,
   isDev,
 } from '../util/helper';
-import { ErrorResponse, SuccessResponse } from '../util/message';
+import {ErrorResponse, SuccessResponse} from '../util/message';
 import WebsiteDB from '../models/website';
 import BaseService from './base';
-import { createWebsite, setBucketPolicy, setBucketPublicAccess } from './external/aws';
+import {
+  createWebsite,
+  setBucketPolicy,
+  setBucketPublicAccess,
+} from './external/aws';
 const fse = require('fs-extra');
 
 interface Response {
@@ -31,52 +35,87 @@ class WebsiteService extends BaseService<'WebsiteService'> {
     const user = await User.get(userId);
     if (!user.user) return ErrorResponse(user.message);
     const website = await WebsiteDB.getByUserId(userId);
-    return this.response({ website: website });
+    return this.response({website: website});
   }
   async getAll(): Promise<Response> {
     const websites = await WebsiteDB.getAll();
-    return this.response({ website: websites });
+    return this.response({website: websites});
   }
-  async create(args: { theme: "DARK" | "LIGHT", template: "BASIC" | "MODERN" | "PROFESSIONAL", userId: UserType["id"] }): Promise<Response> {
+  async create(args: {
+    theme: 'DARK' | 'LIGHT';
+    template: 'BASIC' | 'MODERN' | 'PROFESSIONAL';
+    userId: UserType['id'];
+  }): Promise<Response> {
     const userResponse = await User.get(args.userId);
     if (!userResponse.user) return ErrorResponse(userResponse.message);
 
     const website = await WebsiteDB.getByUserId(args.userId);
     if (!website) {
-      const oldWebsite = await buildWebApp({ ...args, status: "pending", url: "" }, userResponse.user);
+      const oldWebsite = await buildWebApp(
+        {...args, status: 'pending', url: ''},
+        userResponse.user
+      );
       if (oldWebsite.code !== 200) return ErrorResponse(oldWebsite.message);
-      return this.response({ website: oldWebsite.website });
-      
+      return this.response({website: oldWebsite.website});
     }
-    
+
     const newWebsite = await buildWebApp(
-      { ...args, id: website.id, status: "pending", url: "" },
+      {...args, id: website.id, status: 'pending', url: ''},
       userResponse.user
     );
     if (newWebsite.code !== 200) return ErrorResponse(newWebsite.message);
-    return this.response({ website: newWebsite.website });
+    return this.response({website: newWebsite.website});
   }
   async delete(userId: string): Promise<Response> {
     const user = await User.get(userId);
     if (!user.user) return ErrorResponse(user.message);
     const website = await WebsiteDB.delete(userId);
     if (!website) return ErrorResponse();
-    return this.response({ website: website });
+    return this.response({website: website});
   }
-  async getDomainStatus(domain: string) {
-    const getDomainAvailability = async (domain: string) => {
-      const domainAvailability = await route53domains
-        .checkDomainAvailability({
-          DomainName: domain,
-        })
-        .promise();
-      return domainAvailability.Availability === 'AVAILABLE';
-    };
-    const status = await getDomainAvailability(domain).catch((err: any) => {
-      return ErrorResponse(err.message);
+  getDomainAvailability = async (domain: string) => {
+    const domainAvailability = await route53domains
+      .checkDomainAvailability({
+        DomainName: domain,
+      })
+      .promise();
+    //get domain pricing
+    if (
+      !(
+        domain.endsWith('.com') ||
+        domain.endsWith('.net') ||
+        domain.endsWith('.org') ||
+        domain.endsWith('.co') ||
+        domain.endsWith('.me') ||
+        domain.endsWith('.website')
+      )
+    ) {
+      return false;
+    }
+    return domainAvailability.Availability === 'AVAILABLE';
+  };
+  createCustomDomain = async (
+    domain: string,
+    userId: string
+  ): Promise<Response> => {
+    const user = await User.get(userId);
+    if (!user.user) return ErrorResponse(user.message);
+    const website = await WebsiteDB.getByUserId(userId);
+    if (!website) return ErrorResponse('Website not found');
+    const startBuilding = new Builder(user.user);
+    if (!startBuilding) return ErrorResponse('Website not found');
+    const domainAvailability = await this.getDomainAvailability(domain);
+    if (!domainAvailability) return ErrorResponse('Domain not available');
+    const registeredDomain = await startBuilding.registerDomain(domain);
+    if (registeredDomain === false)
+      return ErrorResponse('Domain not registered');
+    const domainResponse = await WebsiteDB.update(website.userId, {
+      ...website,
+      alias: domain,
     });
-    return this.response({ field: status });
-  }
+    if (!domainResponse) return ErrorResponse('Domain not updated');
+    return this.response({website: domainResponse});
+  };
 }
 
 const Website = new WebsiteService();
@@ -89,16 +128,19 @@ export class Builder {
     this.user = user;
   }
   userInfo = () => {
-    return { ...this.user };
+    return {...this.user};
   };
   userWebsite = () => {
     return {
-      name: `${this.userInfo().firstName}-${this.userInfo().lastName}${isLocal ? '.local' : isDev ? '.dev' : ''
-        }.resumed.website`,
-      bucket: `${this.userInfo().firstName}-${this.userInfo().lastName}${isLocal ? '.local' : isDev ? '.dev' : ''
-        }.resumed.website.s3-website.${config.region}.amazonaws.com`,
-      url: `http://${this.userInfo().firstName}-${this.userInfo().lastName}${isLocal ? '.local' : isDev ? '.dev' : ''
-        }.resumed.website.s3-website.${config.region}.amazonaws.com`,
+      name: `${this.userInfo().firstName}-${this.userInfo().lastName}${
+        isLocal ? '.local' : isDev ? '.dev' : ''
+      }.resumed.website`,
+      bucket: `${this.userInfo().firstName}-${this.userInfo().lastName}${
+        isLocal ? '.local' : isDev ? '.dev' : ''
+      }.resumed.website.s3-website.${config.region}.amazonaws.com`,
+      url: `http://${this.userInfo().firstName}-${this.userInfo().lastName}${
+        isLocal ? '.local' : isDev ? '.dev' : ''
+      }.resumed.website.s3-website.${config.region}.amazonaws.com`,
     };
   };
   newS3Website = async () => {
@@ -119,14 +161,17 @@ export class Builder {
         }
       });
     // if bucket return already own message then return url
-    await s3.waitFor('bucketExists', { Bucket: `${params.Bucket}` }).promise().catch((err: any) => {
-      return null;
-    });
+    await s3
+      .waitFor('bucketExists', {Bucket: `${params.Bucket}`})
+      .promise()
+      .catch((err: any) => {
+        return null;
+      });
 
     await setBucketPublicAccess(this.userWebsite().name);
 
     await setBucketPolicy(this.userWebsite().name);
-    
+
     const website = await s3
       .putBucketWebsite({
         Bucket: this.userWebsite().name,
@@ -205,9 +250,12 @@ export class Builder {
     return Promise.all(promises);
   };
   newTemplate = async (template: string, theme: string) => {
-    return await new Template(template, theme, this.user).create(this.userWebsite().name)
+    return await new Template(template, theme, this.user).create(
+      this.userWebsite().name
+    );
   };
   newSubDomain = async (domain: string) => {
+    await this.mapCertificateToDistribution(domain);
     const params = {
       HostedZoneId: AWS_HOSTED_ZONE_ID, // our Id from the first call
       ChangeBatch: {
@@ -217,7 +265,7 @@ export class Builder {
             ResourceRecordSet: {
               Name: domain,
               Type: 'CNAME',
-              TTL: 86400,
+              TTL: 300,
               ResourceRecords: [
                 {
                   Value: this.userWebsite().bucket,
@@ -247,11 +295,13 @@ export class Builder {
     return domainName;
   };
   newDistribution = async () => {
+    const origin =
+      'loumonth-jack.local.resumed.website.s3-website.us-east-2.amazonaws.com';
     return await cloudfront
       .createDistribution({
         DistributionConfig: {
-          CallerReference: this.userWebsite().bucket,
-          Comment: this.userWebsite().bucket,
+          CallerReference: origin,
+          Comment: origin,
           DefaultCacheBehavior: {
             ForwardedValues: {
               Cookies: {
@@ -259,7 +309,7 @@ export class Builder {
               },
               QueryString: false,
             },
-            TargetOriginId: this.userWebsite().name,
+            TargetOriginId: origin,
             TrustedSigners: {
               Enabled: false,
               Quantity: 0,
@@ -271,8 +321,8 @@ export class Builder {
           Origins: {
             Items: [
               {
-                DomainName: this.userWebsite().bucket,
-                Id: this.userWebsite().name,
+                DomainName: origin,
+                Id: origin,
                 S3OriginConfig: {
                   OriginAccessIdentity: '',
                 },
@@ -282,7 +332,11 @@ export class Builder {
           },
         },
       })
-      .promise();
+      .promise()
+      .catch((err: any) => {
+        console.log(err);
+        return null;
+      });
   };
   newCertificate = async (domain: string) => {
     return await acm
@@ -292,53 +346,89 @@ export class Builder {
       })
       .promise();
   };
-  registerDomain = async (domain: string, autoRenew: boolean) => {
-    return await route53domains
+  registerDomain = async (
+    domain: string,
+    autoRenew = false
+  ): Promise<boolean> => {
+    const domainRegistry = await route53domains
       .registerDomain({
         DomainName: domain,
         DurationInYears: 1,
         AutoRenew: autoRenew,
         AdminContact: {
-          FirstName: 'string',
-          LastName: 'string',
-          Email: 'string',
-          PhoneNumber: 'string',
-          AddressLine1: 'string',
-          AddressLine2: 'string',
-          City: 'string',
-          State: 'string',
-          CountryCode: 'string',
-          ZipCode: 'string',
-          Fax: 'string',
+          ContactType: 'PERSON',
+          FirstName: 'Loumonth',
+          LastName: 'Jack',
+          Email: 'Loumonth.Jack.Jr@gmail.com',
+          PhoneNumber: '+1.2253336402',
+          AddressLine1: '5883 Highway 18',
+          AddressLine2: undefined,
+          City: 'Vacherie',
+          State: 'LA',
+          CountryCode: 'US',
+          ZipCode: '70090',
+          Fax: undefined,
         },
         RegistrantContact: {
-          FirstName: 'string',
-          LastName: 'string',
-          Email: 'string',
-          PhoneNumber: 'string',
-          AddressLine1: 'string',
-          AddressLine2: 'string',
-          City: 'string',
-          State: 'string',
-          CountryCode: 'string',
-          ZipCode: 'string',
-          Fax: 'string',
+          ContactType: 'PERSON',
+          FirstName: 'Loumonth',
+          LastName: 'Jack',
+          Email: 'Loumonth.Jack.Jr@gmail.com',
+          PhoneNumber: '+1.2223336402',
+          AddressLine1: '5883 Highway 18',
+          AddressLine2: undefined,
+          City: 'Vacherie',
+          State: 'LA',
+          CountryCode: 'US',
+          ZipCode: '70090',
+          Fax: undefined,
         },
         TechContact: {
-          FirstName: 'string',
-          LastName: 'string',
-          Email: 'string',
-          PhoneNumber: 'string',
-          AddressLine1: 'string',
-          AddressLine2: 'string',
-          City: 'string',
-          State: 'string',
-          CountryCode: 'string',
-          ZipCode: 'string',
-          Fax: 'string',
+          ContactType: 'PERSON',
+          FirstName: 'Loumonth',
+          LastName: 'Jack',
+          Email: 'Loumonth.Jack.Jr@gmail.com',
+          PhoneNumber: '+1.2223336402',
+          AddressLine1: '5883 Highway 18',
+          AddressLine2: undefined,
+          City: 'Vacherie',
+          State: 'LA',
+          CountryCode: 'US',
+          ZipCode: '70090',
+          Fax: undefined,
         },
       })
+      .promise()
+      .catch((err: any) => {
+        console.log(err);
+        return null;
+      });
+    if (!domainRegistry?.OperationId) {
+      return false;
+    }
+    // check domain status
+    const domainStatus = await route53domains
+      .getOperationDetail({
+        OperationId: domainRegistry.OperationId,
+      })
       .promise();
+    console.log(domainStatus);
+    if (domainStatus?.Status !== 'SUCCESSFUL') {
+      if (domainStatus?.Status === 'IN_PROGRESS') {
+        await new Promise(resolve => setTimeout(resolve, 10000));
+        const status = await route53domains
+          .getOperationDetail({
+            OperationId: domainRegistry.OperationId,
+          })
+          .promise();
+        if (status?.Status === 'SUCCESSFUL') {
+          return true;
+        }
+        return false;
+      }
+      return false;
+    }
+    return true;
   };
   mapCertificateToDistribution = async (domain: string) => {
     const certificate = await this.newCertificate(domain);
@@ -350,6 +440,7 @@ export class Builder {
       DistributionConfig: {
         CallerReference: this.userWebsite().bucket,
         Comment: this.userWebsite().bucket,
+        // for redirect to https
         DefaultCacheBehavior: {
           ForwardedValues: {
             Cookies: {
@@ -443,7 +534,8 @@ export const buildWebApp = async (
   website.url = bucket;
 
   const domain = await startBuilding.newSubDomain(
-    `${user.firstName}-${user.lastName}${isLocal ? '.local' : isDev ? '.dev' : ''
+    `${user.firstName}-${user.lastName}${
+      isLocal ? '.local' : isDev ? '.dev' : ''
     }.resumed.website`
   );
   if (!domain) {
@@ -459,7 +551,7 @@ export const buildWebApp = async (
 
   const buildWebsite = await startBuilding.newTemplate(
     website.template,
-    website.theme,
+    website.theme
   );
   if (!buildWebsite) {
     await WebsiteDB.update(website.userId, {
@@ -491,5 +583,5 @@ export const buildWebApp = async (
     console.log('Step 5/5: Could not update website');
     return ErrorResponse('Step 5/5: Could not update website');
   }
-  return SuccessResponse({ website: updateWebsite });
+  return SuccessResponse({website: updateWebsite});
 };

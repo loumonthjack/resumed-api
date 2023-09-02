@@ -3,6 +3,7 @@ import {UserType} from '../types';
 import {DEFAULT_IMAGE} from '../util/helper';
 import {ErrorResponse} from '../util/message';
 import BaseService from './base';
+import {uploadImage} from './external/aws';
 
 interface Response {
   message?: string;
@@ -16,7 +17,10 @@ class UserService extends BaseService<'UserService'> {
     if (!user) return ErrorResponse();
     return this.response({user: user});
   }
-  async getByFirstAndLastName(firstName: string, lastName: string): Promise<Response> {
+  async getByFirstAndLastName(
+    firstName: string,
+    lastName: string
+  ): Promise<Response> {
     const users = await UserDB.getByFirstAndLastName(firstName, lastName);
     if (!users) return ErrorResponse();
     return this.response({users});
@@ -49,10 +53,15 @@ class UserService extends BaseService<'UserService'> {
   async update(args: UserType): Promise<Response> {
     const response = await this.get(args.id);
     if (!response.user) return ErrorResponse(response.message);
-    
+    if (args.profilePicture) {
+      const profileImage =
+        (await uploadImage(args.profilePicture, response.user.id)) ||
+        DEFAULT_IMAGE;
+      args.profilePicture = profileImage;
+    }
     const updatedUser = await UserDB.update(args.id, {
       ...response.user,
-      ...args
+      ...args,
     });
     if (!updatedUser) return ErrorResponse();
     return this.response({user: updatedUser});

@@ -26,18 +26,25 @@ export const DEFAULT_IMAGE =
 export const config = {
   accessKeyId: AWS_ACCESS_KEY_ID,
   secretAccessKey: AWS_SECRET_ACCESS_KEY,
-  region: AWS_REGION,
+  region: AWS_REGION || 'us-east-2',
 };
 
 const Stripe = require('stripe');
 export const stripe = Stripe(process.env.STRIPE_SECRET_KEY_TEST || '');
 
 export const s3 = new AWS.S3(config);
-export const route53 = new AWS.Route53(config);
+export const route53 = new AWS.Route53({
+  accessKeyId: AWS_ACCESS_KEY_ID,
+  secretAccessKey: AWS_SECRET_ACCESS_KEY,
+});
 export const cloudfront = new AWS.CloudFront(config);
 export const cloudwatch = new AWS.CloudWatchLogs(config);
 export const acm = new AWS.ACM(config);
-export const route53domains = new AWS.Route53Domains(config);
+export const route53domains = new AWS.Route53Domains({
+  accessKeyId: AWS_ACCESS_KEY_ID,
+  secretAccessKey: AWS_SECRET_ACCESS_KEY,
+  region: 'us-east-1',
+});
 
 const ai = new OpenAIApi(
   new Configuration({

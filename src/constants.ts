@@ -1,4 +1,4 @@
-import { isDev, isLocal } from "./util/helper";
+import {isDev, isLocal} from './util/helper';
 
 export const PORT = process.env.PORT || 4000;
 export const NODE_ENV = process.env.NODE_ENV || 'localhost';
@@ -6,7 +6,12 @@ export const DOMAIN_NAME = process.env.DOMAIN_NAME || '';
 
 export const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 const FRONTEND_ALIAS = process.env.FRONTEND_ALIAS || '';
-export const SERVER_URL = process.env.SERVER_URL || isLocal ? 'http://localhost:4000' : isDev ? 'http://api.dev.resumed.website' : 'https://api.resumed.website';
+export const SERVER_URL =
+  process.env.SERVER_URL || isLocal
+    ? 'http://localhost:4000'
+    : isDev
+    ? 'http://api.dev.resumed.website'
+    : 'https://api.resumed.website';
 const SERVER_ALIAS = process.env.SERVER_ALIAS || '';
 export const ALLOWED_ORIGINS = [
   FRONTEND_URL,
@@ -85,7 +90,7 @@ export const PLAN_TYPE = {
 export const PLAN_NAME = {
   FREE: 'free_plan',
   PREMIUM: 'superstar_plan',
-}
+};
 
 export const SUBSCRIPTION_STATUS = {
   ACTIVE: 'active',
