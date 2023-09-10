@@ -10,7 +10,7 @@ import {
 } from 'apollo-server-core';
 require('dotenv').config();
 
-import {PORT, SUCCESS_RESPONSE, SERVER_URL} from './constants';
+import {PORT, SUCCESS_RESPONSE, SERVER_URL, FRONTEND_URL} from './constants';
 import {Middleware, authorize} from './services/auth';
 import resolvers from './routes/graphql/index';
 import typeDefs from './routes/graphql/schema';
@@ -48,8 +48,9 @@ const expressServer = async () => {
   const whiteList: Array<string> = [
     'http://localhost:3000',
     'http://localhost:4000',
+    SERVER_URL,
     'https://api.dev.resumed.website',
-    'http://api.dev.resumed.website',
+    FRONTEND_URL,
   ];
   for (const website of websites) {
     whiteList.push(website.url);
@@ -73,7 +74,8 @@ const expressServer = async () => {
 
   app.get('/', async (req, res) => {
     // check if website exist in db
-    if (!req.headers?.origin) {
+    console.log(req.hostname);
+    if (!req.hostname) {
       return res.status(404).send(`<html>
       <head>
         <title>404</title>
@@ -84,7 +86,7 @@ const expressServer = async () => {
       </body>
     </html>`);
     }
-    const website = await WebsiteDB.getByUrl(req.headers?.origin);
+    const website = await WebsiteDB.getByUrl(req.hostname);
     if (!website) {
       return res.status(404).send(`<html>
       <head>
