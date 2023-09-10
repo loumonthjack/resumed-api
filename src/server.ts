@@ -40,7 +40,7 @@ const expressServer = async () => {
   app.engine('mustache', mustacheExpress());
 
   app.set('view engine', 'mustache');
-  app.set('views', __dirname + '/templates');
+  app.set('views', __dirname + '/templates/basic');
   app.use(bodyParser.urlencoded({extended: true}));
 
   app.use((req, res, next) => {
