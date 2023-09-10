@@ -143,7 +143,7 @@ const expressServer = async () => {
       currentPostion: experience.position,
       lightBackground: website.theme === 'light',
     });
-    return res.status(200).send(newFile);
+    return res.status(200).send(express.static(newFile));
   });
   app.get('/health-check', (req, res) => {
     res.status(200).send('OK');
