@@ -32,9 +32,17 @@ import {
 } from './services/template';
 import UserDB from './models/user';
 import ResumeDB from './models/resume';
-
+const mustacheExpress = require('mustache-express');
+const bodyParser = require('body-parser');
 const expressServer = async () => {
   const app = express();
+  // Register '.html' extension with The Mustache Express
+  app.engine('html', mustacheExpress());
+
+  app.set('view engine', 'mustache');
+  app.set('views', __dirname + '/templates');
+  app.use(bodyParser.urlencoded({extended: true}));
+
   app.use((req, res, next) => {
     const resumedRegex = new RegExp(/.*resumed\.website$/);
     if (resumedRegex.test(req.hostname)) {
@@ -143,7 +151,7 @@ const expressServer = async () => {
       currentPostion: experience.position,
       lightBackground: website.theme === 'light',
     });
-    return res.status(200).send(express.static(newFile));
+    return res.send(express.static(newFile));
   });
   app.get('/health-check', (req, res) => {
     res.status(200).send('OK');
