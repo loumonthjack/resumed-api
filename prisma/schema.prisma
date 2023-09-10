@@ -72,7 +72,7 @@ model Session {
 
 model Website {
   id       String  @id @default(uuid())
-  url      String
+  url      String @unique
   alias    String?
   theme    String
   status   String  @default("pending")

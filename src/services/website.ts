@@ -296,7 +296,8 @@ export class Builder {
   };
   newDistribution = async () => {
     const origin =
-      'loumonth-jack.local.resumed.website.s3-website.us-east-2.amazonaws.com';
+      this.userWebsite().bucket ||
+      `${this.userWebsite().name}.s3.amazonaws.com`;
     return await cloudfront
       .createDistribution({
         DistributionConfig: {

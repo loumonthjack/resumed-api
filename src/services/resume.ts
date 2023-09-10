@@ -165,7 +165,7 @@ class ResumeService extends BaseService<'ResumeService'> {
     const prompt = `This is a resume. Please fill in the following fields with the data from the resume.
     ${resumeString}, Remove and clean data, here is data:${pages[0].lines}:
     Map as much data as possible, Delete any data that is not mapped to the resume data. Create a resume from the data. 
-    Be sure Bio, Experience, Education, Skills, Awards are filled out. Return in JSON format.`;
+    Be sure Bio, Experience, Education, Skills, Awards, Links are filled out. Return in JSON format, double check accuracy to each field.`;
 
     console.time('openai');
     const response = await AI.complete(prompt);
@@ -181,20 +181,42 @@ class ResumeService extends BaseService<'ResumeService'> {
       awards: [],
       links: [],
     };
+    const validateDates = function (
+      experience: ExperienceType['start'] | ExperienceType['end']
+    ) {
+      const date = experience?.split(' ');
+      return date && date[1]
+        ? `${
+            date[0].charAt(0)?.toUpperCase() + date[0].slice(1).toLowerCase()
+          } ${date[1]}`
+        : date &&
+            date[0].charAt(0)?.toUpperCase() + date[0].slice(1).toLowerCase();
+    };
     if (resumeData.bio) {
       resume['bio'] = resumeData.bio;
     }
     if (resumeData.education) {
-      resume['education'] = resumeData.education;
+      resume['education'] = resumeData.education.map((education: any) => {
+        education.start = validateDates(education.start);
+        education.end = validateDates(education.end);
+        return education;
+      });
     }
     if (resumeData.experience) {
-      resume['experience'] = resumeData.experience;
+      resume['experience'] = resumeData.experience.map((experience: any) => {
+        experience.start = validateDates(experience.start);
+        experience.end = validateDates(experience.end);
+        return experience;
+      });
     }
     if (resumeData.skills) {
       resume['skills'] = resumeData.skills;
     }
     if (resumeData.awards) {
-      resume['awards'] = resumeData.awards;
+      resume['awards'] = resumeData.awards.map((award: any) => {
+        award.date = validateDates(award.date);
+        return award;
+      });
     }
     if (resumeData.links) {
       resume['links'] = resumeData.links;

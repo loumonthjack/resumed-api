@@ -61,6 +61,14 @@ class WebsiteModel {
     const websites = await db.findMany();
     return websites ? websites : null;
   }
+  async getByUrl(url: string): Promise<WebsiteType | null> {
+    const website = await db.findUnique({
+      where: {
+        url,
+      },
+    });
+    return website ? website : null;
+  }
 }
 const WebsiteDB = new WebsiteModel();
 export default WebsiteDB;

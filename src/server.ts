@@ -14,7 +14,7 @@ import {PORT, SUCCESS_RESPONSE, SERVER_URL} from './constants';
 import {Middleware, authorize} from './services/auth';
 import resolvers from './routes/graphql/index';
 import typeDefs from './routes/graphql/schema';
-import {cookieName, setCookies} from './routes/helper';
+import {cookieName} from './routes/helper';
 import {applyMiddleware} from 'graphql-middleware';
 import shield from './routes/graphql/shield';
 
@@ -22,14 +22,41 @@ import AuthRoute from './routes/rest/auth';
 import http from 'http';
 import express from 'express';
 import cors from 'cors';
-import {isLocal} from './util/helper';
+import {isDev, isLocal} from './util/helper';
+import WebsiteDB from './models/website';
+import {
+  BASIC_HTML,
+  MINIMAL_HTML,
+  MODERN_HTML,
+  renderTemplate,
+} from './services/template';
+import UserDB from './models/user';
+import ResumeDB from './models/resume';
 
 const expressServer = async () => {
   const app = express();
-  const whitelist = ['http://localhost:3000', 'http://localhost:4000'];
+  app.use((req, res, next) => {
+    const resumedRegex = new RegExp(/.*resumed\.website$/);
+    if (resumedRegex.test(req.hostname)) {
+      res.setHeader('Access-Control-Allow-Origin', req.hostname);
+    }
+    next();
+  });
+  const websites = await WebsiteDB.getAll();
+  if (!websites) return;
+
+  const whiteList: Array<string> = [
+    'http://localhost:3000',
+    'http://localhost:4000',
+  ];
+  for (const website of websites) {
+    whiteList.push(website.url);
+    if (website.alias) whiteList.push(website.alias);
+  }
+  console.log(whiteList);
   const corsOptions = {
     origin: function (origin: any, callback: any) {
-      if (!origin || whitelist.indexOf(origin) !== -1) {
+      if (!origin || whiteList.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
@@ -43,6 +70,78 @@ const expressServer = async () => {
 
   app.get('/', (req, res) => {
     res.redirect('/graphql');
+  });
+  app.get('/website', async (req, res) => {
+    // check if website exist in db
+    if (!req.headers?.origin) {
+      return res.status(404).send(`<html>
+      <head>
+        <title>404</title>
+      </head>
+      <body>
+        <h1>404</h1>
+        <p>Website not found</p>
+      </body>
+    </html>`);
+    }
+    const website = await WebsiteDB.getByUrl(req.headers?.origin);
+    if (!website) {
+      return res.status(404).send(`<html>
+      <head>
+        <title>404</title>
+      </head>
+      <body>
+        <h1>404</h1>
+        <p>Website not found</p>
+      </body>
+    </html>`);
+    }
+    const templates: any = {
+      basic: BASIC_HTML,
+      minimal: MINIMAL_HTML,
+      modern: MODERN_HTML,
+    };
+    const websiteUser = await UserDB.get(website.userId);
+    if (!websiteUser) {
+      return res.status(404).send(`<html>
+      <head>
+        <title>404</title>
+      </head>
+      <body>
+        <h1>404</h1>
+        <p>Something went wrong</p>
+      </body>
+    </html>`);
+    }
+    // first letter of first name and last name
+    const title = `${websiteUser.firstName
+      .charAt(0)
+      .toUpperCase()}${websiteUser.lastName.charAt(0).toUpperCase()}`;
+    const resume = await ResumeDB.getByUserId(website.userId);
+    if (!resume) {
+      return null;
+    }
+    if (resume?.skills?.length > 5) {
+      resume.skills = resume.skills.slice(0, 5);
+    }
+    // for each resume skill append percentNumber to the object
+    resume.skills = resume.skills.map((skill: any) => {
+      // percentNumber will be random from 75 to 100, increment of 5
+      skill.percent = Math.floor(Math.random() * 5) * 5 + 75;
+      return {
+        ...skill,
+        percentNumber: `${skill.percent}`,
+      };
+    });
+    const experience = resume.experience && (resume.experience[0] as any);
+    const newFile = renderTemplate(templates[website.template], {
+      title,
+      user: websiteUser,
+      resume,
+      currentPostion: experience.position,
+      lightBackground: website.theme === 'light',
+    });
+    return res.status(200).send(newFile);
   });
   app.get('/health-check', (req, res) => {
     res.status(200).send('OK');
@@ -111,13 +210,16 @@ async function apolloServer(app: any, typeDefs: any, resolvers: any) {
 
       return response;
     },
-    plugins: [
-      ApolloServerPluginLandingPageLocalDefault({
-        embed: true,
-        includeCookies: true,
-      }),
-      ApolloServerPluginInlineTrace(),
-    ],
+    plugins:
+      isLocal || isDev
+        ? [
+            ApolloServerPluginInlineTrace(),
+            ApolloServerPluginLandingPageLocalDefault({
+              embed: true,
+              includeCookies: true,
+            }),
+          ]
+        : [],
   });
   await graphQLServer.start();
   graphQLServer.applyMiddleware({app: app, path: '/graphql', cors: false});

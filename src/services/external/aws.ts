@@ -187,7 +187,9 @@ export const uploadResume = async (
   const type = file.split(';')[0].split('/')[1];
   const params = {
     Bucket: AWS_BUCKET_NAME,
-    Key: `resumes/${userId}.pdf`,
+    Key: `resumes/${
+      isLocal ? 'local/' : isDev ? 'dev/' : 'prod/'
+    }${userId}.pdf`,
     Body: base64Data,
     ContentEncoding: 'base64',
     ContentType: `application/pdf`,
@@ -205,9 +207,9 @@ export const uploadImage = async (file: string, userId: UserType['id']) => {
   const type = file.split(';')[0].split('/')[1];
   const params = {
     Bucket: AWS_BUCKET_NAME,
-    Key: `profile_pics/${userId}${
-      isLocal ? '-local' : isDev ? '-dev' : ''
-    }.${type}`,
+    Key: `profile_pics/${
+      isLocal ? 'local/' : isDev ? 'dev/' : 'prod/'
+    }${userId}.${type}`,
     ContentType: `image/${type}`,
     ContentEncoding: 'base64',
     Body: base64Data,
