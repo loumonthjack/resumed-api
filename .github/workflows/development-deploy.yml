@@ -46,8 +46,6 @@ jobs:
       run: sudo docker exec resumed-api bash -c "echo "export SENDGRID_API_KEY='${{ secrets.SENDGRID_API_KEY }}'" > sendgrid.env"
     - name: Stall  20 seconds
       run: sleep 20
-    - name: Update DB Schema
-      run: sudo docker exec resumed-api bash -c "npm run db:push"
     - name: Check Container Status
       run: sudo docker ps -a
     - name: Check Container Logs

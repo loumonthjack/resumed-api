@@ -134,7 +134,7 @@ const expressServer = async () => {
       };
     });
     const experience = resume.experience && (resume.experience[0] as any);
-    const newFile = renderTemplate(templates[website.template], {
+    const newFile = renderTemplate(templates[website.template.toLowerCase()], {
       title,
       user: websiteUser,
       resume,
