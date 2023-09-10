@@ -37,10 +37,10 @@ const bodyParser = require('body-parser');
 const expressServer = async () => {
   const app = express();
   // Register '.html' extension with The Mustache Express
-  app.engine('html', mustacheExpress());
+  app.engine('mustache', mustacheExpress());
 
   app.set('view engine', 'mustache');
-  app.set('views', __dirname + '/templates');
+  app.set('views', '/templates');
   app.use(bodyParser.urlencoded({extended: true}));
 
   app.use((req, res, next) => {
