@@ -71,10 +71,7 @@ const expressServer = async () => {
   app.use(express.json());
   app.use(express.urlencoded({extended: true}));
 
-  app.get('/', (req, res) => {
-    res.redirect('/graphql');
-  });
-  app.get('/website', async (req, res) => {
+  app.get('/', async (req, res) => {
     // check if website exist in db
     if (!req.headers?.origin) {
       return res.status(404).send(`<html>
