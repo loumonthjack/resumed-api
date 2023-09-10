@@ -28,6 +28,7 @@ jobs:
     - name: Create variables file
       run: |
         echo "AWS_REGION=${{ secrets.AWS_REGION }}" > ./.env
+        echo "AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }}" >> ./.env
         echo "DATABASE_URL=${{ secrets.DATABASE_URL }}"  >> ./.env
         echo "SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}" >> ./.env
         echo "SENDGRID_FROM_EMAIL=${{ secrets.SENDGRID_FROM_EMAIL }}" >> ./.env
