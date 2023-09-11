@@ -47,7 +47,10 @@ const expressServer = async () => {
   app.use((req, res, next) => {
     // get req  referer
     console.log(req.headers.referer);
-    if (req.headers.referer && !req.headers.referer.startsWith('https://')) {
+    if (
+      req.headers.referer &&
+      req.headers.referer.endsWith('resumed.website')
+    ) {
       return res.redirect(`https://${req.hostname}`);
     }
     const resumedRegex = new RegExp(/.*resumed\.website$/);
@@ -87,6 +90,7 @@ const expressServer = async () => {
   app.use(express.urlencoded({extended: true}));
   app.get('/', async (req, res) => {
     // check if website exist in db
+    console.log(req.hostname);
     if (!req.hostname) {
       return res.status(404).send(`<html>
       <head>
