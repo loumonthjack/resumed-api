@@ -42,8 +42,6 @@ const expressServer = async () => {
   app.engine('mustache', mustacheExpress());
 
   app.set('view engine', 'mustache');
-  app.use(express.static(path.join(__dirname + '/templates/basic')));
-  console.log(path.join(__dirname + '../templates/basic'));
   app.use(bodyParser.urlencoded({extended: true}));
 
   app.use((req, res, next) => {
@@ -153,13 +151,10 @@ const expressServer = async () => {
       currentPostion: experience.position,
       lightBackground: website.theme === 'light',
     });
-    return res.render('index', {
-      title,
-      user: websiteUser,
-      resume,
-      currentPostion: experience.position,
-      lightBackground: website.theme === 'light',
-    });
+    const folder = express.static(path.join(__dirname + '/templates/basic'));
+    app.use(folder);
+    // instead of sending the file, send the rendered html
+    res.send(newFile);
   });
   app.get('/health-check', (req, res) => {
     res.status(200).send('OK');
