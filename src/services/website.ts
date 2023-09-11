@@ -255,7 +255,6 @@ export class Builder {
     );
   };
   newSubDomain = async (domain: string) => {
-    await this.mapCertificateToDistribution(domain);
     const params = {
       HostedZoneId: AWS_HOSTED_ZONE_ID, // our Id from the first call
       ChangeBatch: {
@@ -268,7 +267,9 @@ export class Builder {
               TTL: 300,
               ResourceRecords: [
                 {
-                  Value: this.userWebsite().bucket,
+                  Value: isLocal
+                    ? 'localhost:4000'
+                    : `api${isDev ? '.dev' : ''}.resumed.website`,
                 },
               ],
             },
@@ -520,7 +521,7 @@ export const buildWebApp = async (
       theme: website.theme,
     });
   }
-
+  /*
   const bucket = await startBuilding.newS3Website();
   if (!bucket) {
     // update status to error
@@ -533,7 +534,7 @@ export const buildWebApp = async (
     return ErrorResponse('Step 1/5: Could not create S3 bucket');
   }
   website.url = bucket;
-
+*/
   const domain = await startBuilding.newSubDomain(
     `${user.firstName}-${user.lastName}${
       isLocal ? '.local' : isDev ? '.dev' : ''
@@ -548,7 +549,7 @@ export const buildWebApp = async (
     console.log('Step 2/5: Could not create Route53 subdomain');
     return ErrorResponse('Step 2/5: Could not create Route53 domain');
   }
-  website.alias = domain;
+  website.url = domain;
 
   const buildWebsite = await startBuilding.newTemplate(
     website.template,
