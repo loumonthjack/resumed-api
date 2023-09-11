@@ -46,12 +46,12 @@ const expressServer = async () => {
 
   app.use((req, res, next) => {
     // get req  referer
-    console.log(req.headers.referer);
     if (
       req.headers.referer &&
-      req.headers.referer.endsWith('resumed.website')
+      req.headers.referer.endsWith('resumed.website/')
     ) {
-      return res.redirect(`https://${req.hostname}`);
+      console.log(req.headers.referer);
+      res.redirect(`https://${req.hostname}`);
     }
     const resumedRegex = new RegExp(/.*resumed\.website$/);
     if (resumedRegex.test(req.hostname)) {
