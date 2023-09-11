@@ -32,15 +32,17 @@ import {
 } from './services/template';
 import UserDB from './models/user';
 import ResumeDB from './models/resume';
+import path from 'path';
 const mustacheExpress = require('mustache-express');
 const bodyParser = require('body-parser');
+
 const expressServer = async () => {
   const app = express();
   // Register '.html' extension with The Mustache Express
   app.engine('mustache', mustacheExpress());
 
   app.set('view engine', 'mustache');
-  app.set('views', '/templates/basic');
+  app.set('views', path.join(__dirname, `../templates/basic`));
   app.use(bodyParser.urlencoded({extended: true}));
 
   app.use((req, res, next) => {
