@@ -43,6 +43,7 @@ const expressServer = async () => {
 
   app.set('view engine', 'mustache');
   app.use(express.static(path.join(__dirname + '../templates/basic')));
+  console.log(path.join(__dirname + '../templates/basic'));
   app.use(bodyParser.urlencoded({extended: true}));
 
   app.use((req, res, next) => {
@@ -81,7 +82,6 @@ const expressServer = async () => {
   app.use(cors(corsOptions));
   app.use(express.json());
   app.use(express.urlencoded({extended: true}));
-
   app.get('/', async (req, res) => {
     // check if website exist in db
     console.log(req.hostname);
