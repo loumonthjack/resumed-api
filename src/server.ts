@@ -55,8 +55,6 @@ const expressServer = async () => {
   if (!websites) return;
 
   const whiteList: Array<string> = [
-    'http://localhost:3000',
-    'http://localhost:4000',
     SERVER_URL,
     'https://api.dev.resumed.website',
     FRONTEND_URL,
@@ -70,6 +68,7 @@ const expressServer = async () => {
       if (!origin || whiteList.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
+        console.log(origin);
         callback(new Error('Not allowed by CORS'));
       }
     },
