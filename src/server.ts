@@ -153,7 +153,13 @@ const expressServer = async () => {
       currentPostion: experience.position,
       lightBackground: website.theme === 'light',
     });
-    return res.render(newFile);
+    return res.render('index', {
+      title,
+      user: websiteUser,
+      resume,
+      currentPostion: experience.position,
+      lightBackground: website.theme === 'light',
+    });
   });
   app.get('/health-check', (req, res) => {
     res.status(200).send('OK');
