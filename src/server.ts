@@ -46,9 +46,7 @@ const expressServer = async () => {
 
   app.use((req, res, next) => {
     // force https
-    if (req.headers['x-forwarded-proto'] !== 'https' && !isLocal) {
-      return res.redirect(`https://${req.hostname}${req.url}`);
-    }
+    console.log(req);
     const resumedRegex = new RegExp(/.*resumed\.website$/);
     if (resumedRegex.test(req.hostname)) {
       res.setHeader('Access-Control-Allow-Origin', req.hostname);
