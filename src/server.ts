@@ -45,13 +45,6 @@ const expressServer = async () => {
   app.use(bodyParser.urlencoded({extended: true}));
 
   app.use((req, res, next) => {
-    // get req  referer
-    if (
-      req.headers.referer &&
-      req.headers.referer.endsWith('resumed.website/')
-    ) {
-      return res.redirect(`https://${req.hostname}`);
-    }
     const resumedRegex = new RegExp(/.*resumed\.website$/);
     if (resumedRegex.test(req.hostname)) {
       res.setHeader('Access-Control-Allow-Origin', req.hostname);
