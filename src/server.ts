@@ -65,13 +65,11 @@ const expressServer = async () => {
     whiteList.push(website.url);
     if (website.alias) whiteList.push(website.alias);
   }
-  console.log(whiteList);
   const corsOptions = {
     origin: function (origin: any, callback: any) {
       if (!origin || whiteList.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
-        console.log(origin, whiteList);
         callback(new Error('Not allowed by CORS'));
       }
     },
@@ -81,8 +79,6 @@ const expressServer = async () => {
   app.use(express.json());
   app.use(express.urlencoded({extended: true}));
   app.get('/', async (req, res) => {
-    // check if website exist in db
-    console.log(req.hostname);
     if (!req.hostname) {
       return res.status(404).send(`<html>
       <head>
@@ -160,10 +156,13 @@ const expressServer = async () => {
       currentPostion: experience.position,
       lightBackground: website.theme === 'light',
     });
-    const folder = express.static(
-      path.join(__dirname + `/templates/${website.template.toLowerCase()}`)
-    );
-    app.use(folder);
+    if (website.template === 'BASIC') {
+      app.use(express.static(path.join(__dirname + `/templates/basic`)));
+    } else if (website.template === 'MODERN') {
+      app.use(express.static(path.join(__dirname + `/templates/modern`)));
+    } else if (website.template === 'MINIMAL') {
+      app.use(express.static(path.join(__dirname + `/templates/minimal`)));
+    }
     // instead of sending the file, send the rendered html
     res.send(newFile);
   });
