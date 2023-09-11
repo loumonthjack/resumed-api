@@ -156,6 +156,7 @@ const expressServer = async () => {
           websiteUser.lastName.slice(1),
       },
       resume,
+      env: isLocal ? 'local' : isDev ? 'dev' : 'prod',
       currentPostion: experience.position,
       lightBackground: website.theme === 'light',
     });
