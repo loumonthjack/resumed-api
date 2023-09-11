@@ -163,7 +163,22 @@ const expressServer = async () => {
       app.use(express.static(path.join(__dirname + `/templates/minimal`)));
     }
     // instead of sending the file, send the rendered html
-    res.send(newFile);
+    return res.render(templates[website.template.toLowerCase()], {
+      title,
+      user: {
+        ...websiteUser,
+        firstName:
+          websiteUser.firstName.charAt(0).toUpperCase() +
+          websiteUser.firstName.slice(1),
+        lastName:
+          websiteUser.lastName.charAt(0).toUpperCase() +
+          websiteUser.lastName.slice(1),
+      },
+      resume,
+      env: isLocal ? 'local' : isDev ? 'dev' : 'prod',
+      currentPostion: experience.position,
+      lightBackground: website.theme === 'light',
+    });
   });
   app.get('/health-check', (req, res) => {
     res.status(200).send('OK');
