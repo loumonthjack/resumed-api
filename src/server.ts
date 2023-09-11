@@ -146,12 +146,22 @@ const expressServer = async () => {
     const experience = resume.experience && (resume.experience[0] as any);
     const newFile = renderTemplate(templates[website.template.toLowerCase()], {
       title,
-      user: websiteUser,
+      user: {
+        ...websiteUser,
+        firstName:
+          websiteUser.firstName.charAt(0).toUpperCase() +
+          websiteUser.firstName.slice(1),
+        lastName:
+          websiteUser.lastName.charAt(0).toUpperCase() +
+          websiteUser.lastName.slice(1),
+      },
       resume,
       currentPostion: experience.position,
       lightBackground: website.theme === 'light',
     });
-    const folder = express.static(path.join(__dirname + '/templates/basic'));
+    const folder = express.static(
+      path.join(__dirname + `/templates/${website.template.toLowerCase()}`)
+    );
     app.use(folder);
     // instead of sending the file, send the rendered html
     res.send(newFile);
