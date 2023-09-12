@@ -163,22 +163,7 @@ const expressServer = async () => {
       app.use(express.static(path.join(__dirname + `/templates/minimal`)));
     }
     // instead of sending the file, send the rendered html
-    return res.render(templates[website.template.toLowerCase()], {
-      title,
-      user: {
-        ...websiteUser,
-        firstName:
-          websiteUser.firstName.charAt(0).toUpperCase() +
-          websiteUser.firstName.slice(1),
-        lastName:
-          websiteUser.lastName.charAt(0).toUpperCase() +
-          websiteUser.lastName.slice(1),
-      },
-      resume,
-      env: isLocal ? 'local' : isDev ? 'dev' : 'prod',
-      currentPostion: experience.position,
-      lightBackground: website.theme === 'light',
-    });
+    return res.send(newFile);
   });
   app.get('/health-check', (req, res) => {
     res.status(200).send('OK');
@@ -259,7 +244,7 @@ async function apolloServer(app: any, typeDefs: any, resolvers: any) {
         : [],
   });
   await graphQLServer.start();
-  graphQLServer.applyMiddleware({app: app, path: '/graphql', cors: false});
+  graphQLServer.applyMiddleware({app, path: '/graphql', cors: false});
   await new Promise<void>(resolve => httpServer.listen({port: PORT}, resolve));
   console.log(SUCCESS_RESPONSE.MESSAGE.RUNNING(`🚀${SERVER_URL}/`));
 }
