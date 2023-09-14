@@ -6,6 +6,7 @@ import {
   AWS_BUCKET_NAME,
   AWS_REGION,
   AWS_SECRET_ACCESS_KEY,
+  DOMAIN_NAME,
   FRONTEND_URL,
   NODE_ENV,
   OPENAI_KEY,
@@ -19,9 +20,6 @@ import sendGrid from '@sendgrid/mail';
 
 sendGrid.setApiKey(process.env.SENDGRID_API_KEY || '');
 const MAILER = process.env.SENDGRID_FROM_EMAIL || '';
-
-export const DEFAULT_IMAGE =
-  'https://s3.amazonaws.com/app.resumed.website/profile_pics/Default.png';
 
 export const config = {
   accessKeyId: AWS_ACCESS_KEY_ID,
@@ -39,7 +37,7 @@ export const route53 = new AWS.Route53({
 });
 export const cloudfront = new AWS.CloudFront(config);
 export const cloudwatch = new AWS.CloudWatchLogs(config);
-export const acm = new AWS.ACM(config);
+export const acm = new AWS.ACM({...config, region: 'us-eat-1'});
 export const route53domains = new AWS.Route53Domains({
   accessKeyId: AWS_ACCESS_KEY_ID,
   secretAccessKey: AWS_SECRET_ACCESS_KEY,
@@ -164,19 +162,6 @@ export const sendContactEmail = async (email: string, message: string) => {
   return true;
 };
 
-export const getCurrentEnv = (): string => {
-  if (NODE_ENV === 'local' || NODE_ENV === 'localhost') {
-    return 'local';
-  } else if (NODE_ENV === 'development' || NODE_ENV === 'dev') {
-    return 'dev';
-  } else if (NODE_ENV === 'production' || NODE_ENV === 'prod') {
-    return 'prod';
-  }
-  return 'local';
-};
-
-export const isLocal = getCurrentEnv() === 'local';
-export const isDev = getCurrentEnv() === 'dev';
 export const uploadImage = async (file: string, userId: UserType['id']) => {
   if (!file) {
     return null;
@@ -186,7 +171,7 @@ export const uploadImage = async (file: string, userId: UserType['id']) => {
     await s3
       .upload({
         Bucket: AWS_BUCKET_NAME,
-        Key: `profile_pics/${userId}${isLocal ? '-local' : ''}.${type}`,
+        Key: `profile_pics/${userId}.${type}`,
         ContentType: `image/${type}`,
         ContentEncoding: 'base64',
         Body: Buffer.from(

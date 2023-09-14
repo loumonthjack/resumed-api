@@ -1,7 +1,7 @@
 import {Request, Response as ExpressResponse} from 'express';
 import {ErrorResponse, SuccessResponse} from '../util/message';
-import {DEFAULT_IMAGE, stripe} from '../util/helper';
-import {PLAN_NAME, PLAN_TYPE, SUBSCRIPTION_STATUS} from '../constants';
+import {stripe} from '../util/helper';
+import {DEFAULT_IMAGE, PLAN_NAME, SUBSCRIPTION_STATUS} from '../constants';
 import Session from './session';
 import User from './user';
 import Plan from './plan';

@@ -1,6 +1,4 @@
 import {ApolloServer} from 'apollo-server-express';
-import {expressMiddleware} from '@apollo/server/express4';
-import serverlessExpress from '@vendia/serverless-express';
 import {rateLimitDirective} from 'graphql-rate-limit-directive';
 import depthLimit from 'graphql-depth-limit';
 import {makeExecutableSchema} from '@graphql-tools/schema';
@@ -10,7 +8,14 @@ import {
 } from 'apollo-server-core';
 require('dotenv').config();
 
-import {PORT, SUCCESS_RESPONSE, SERVER_URL, FRONTEND_URL} from './constants';
+import {
+  PORT,
+  SUCCESS_RESPONSE,
+  SERVER_URL,
+  ALLOWED_ORIGINS,
+  ENVIRONMENT,
+  AWS_BUCKET_NAME,
+} from './constants';
 import {Middleware, authorize} from './services/auth';
 import resolvers from './routes/graphql/index';
 import typeDefs from './routes/graphql/schema';
@@ -22,12 +27,12 @@ import AuthRoute from './routes/rest/auth';
 import http from 'http';
 import express from 'express';
 import cors from 'cors';
-import {isDev, isLocal} from './util/helper';
 import WebsiteDB from './models/website';
 import {
   BASIC_HTML,
   MINIMAL_HTML,
   MODERN_HTML,
+  TEMP_HTML,
   renderTemplate,
 } from './services/template';
 import UserDB from './models/user';
@@ -54,11 +59,7 @@ const expressServer = async () => {
   const websites = await WebsiteDB.getAll();
   if (!websites) return;
 
-  const whiteList: Array<string> = [
-    SERVER_URL,
-    'https://api.dev.resumed.website',
-    FRONTEND_URL,
-  ];
+  const whiteList: Array<string> = ALLOWED_ORIGINS;
   for (const website of websites) {
     whiteList.push(website.url);
     if (website.alias) whiteList.push(website.alias);
@@ -105,6 +106,7 @@ const expressServer = async () => {
       basic: BASIC_HTML,
       minimal: MINIMAL_HTML,
       modern: MODERN_HTML,
+      temp: TEMP_HTML,
     };
     const websiteUser = await UserDB.get(website.userId);
     if (!websiteUser) {
@@ -139,8 +141,12 @@ const expressServer = async () => {
       };
     });
     const experience = resume.experience && (resume.experience[0] as any);
-    const newFile = renderTemplate(templates[website.template.toLowerCase()], {
-      title,
+    const newFile = renderTemplate(templates['temp'], {
+      AWS_BUCKET_NAME: `https://s3.us-west-2.amazonaws.com/${AWS_BUCKET_NAME}/templates/basic/`,
+      title: resume.experience ? experience.position : title,
+      latestPosition: experience.position,
+      headerFirst: websiteUser.firstName.toUpperCase(),
+      headerLast: websiteUser.lastName.toUpperCase(),
       user: {
         ...websiteUser,
         firstName:
@@ -150,13 +156,13 @@ const expressServer = async () => {
           websiteUser.lastName.charAt(0).toUpperCase() +
           websiteUser.lastName.slice(1),
       },
-      resume,
-      env: isLocal ? 'local' : isDev ? 'dev' : 'prod',
+      userResumeUrl: `https://s3.us-west-2.amazonaws.com/${AWS_BUCKET_NAME}/resumes/${website.userId}.pdf`,
+      env: ENVIRONMENT,
       currentPostion: experience.position,
       lightBackground: website.theme === 'light',
     });
     if (website.template === 'BASIC') {
-      app.use(express.static(path.join(__dirname + `/templates/basic`)));
+      app.use(express.static(path.join(__dirname + `/templates/temp`)));
     } else if (website.template === 'MODERN') {
       app.use(express.static(path.join(__dirname + `/templates/modern`)));
     } else if (website.template === 'MINIMAL') {
@@ -233,7 +239,7 @@ async function apolloServer(app: any, typeDefs: any, resolvers: any) {
       return response;
     },
     plugins:
-      isLocal || isDev
+      ENVIRONMENT !== 'prod'
         ? [
             ApolloServerPluginInlineTrace(),
             ApolloServerPluginLandingPageLocalDefault({
@@ -246,7 +252,7 @@ async function apolloServer(app: any, typeDefs: any, resolvers: any) {
   await graphQLServer.start();
   graphQLServer.applyMiddleware({app, path: '/graphql', cors: false});
   await new Promise<void>(resolve => httpServer.listen({port: PORT}, resolve));
-  console.log(SUCCESS_RESPONSE.MESSAGE.RUNNING(`🚀${SERVER_URL}/`));
+  console.log(SUCCESS_RESPONSE.MESSAGE.RUNNING(`🚀http://${SERVER_URL}/`));
 }
 async function startApolloServer(typeDefs: any, resolvers: any) {
   await apolloServer(await expressServer(), typeDefs, resolvers);

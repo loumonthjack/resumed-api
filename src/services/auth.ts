@@ -1,12 +1,5 @@
-import {
-  Request,
-  Response as ExpressResponse,
-  NextFunction,
-  query,
-} from 'express';
-import {isLocal, DEFAULT_IMAGE} from '../util/helper';
+import {Request, Response as ExpressResponse, NextFunction} from 'express';
 import {ErrorResponse, SuccessResponse} from '../util/message';
-import {LogEvent} from '../util/logger';
 import {SessionType, UserType} from '../types';
 import ggl from 'graphql-tag';
 
@@ -15,7 +8,11 @@ import Payment from './payment';
 import User from './user';
 import SessionDB from '../models/session';
 import {AuthenticationError} from 'apollo-server-core';
-import {ERROR_RESPONSE as ERROR} from '../constants';
+import {
+  DEFAULT_IMAGE,
+  ENVIRONMENT,
+  ERROR_RESPONSE as ERROR,
+} from '../constants';
 import BaseService from './base';
 import {uploadImage} from './external/aws';
 
@@ -197,7 +194,7 @@ class MiddlewareService {
     response: ExpressResponse,
     next: NextFunction
   ) => {
-    if (isLocal) return next();
+    if (ENVIRONMENT === 'local') return next();
     const {authorization} = request.headers;
     const auth = await Authorize.checkAuthorization(authorization!);
     if (auth.code !== 200) {

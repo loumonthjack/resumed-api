@@ -1,6 +1,6 @@
+import {DEFAULT_IMAGE} from '../constants';
 import UserDB from '../models/user';
 import {UserType} from '../types';
-import {DEFAULT_IMAGE} from '../util/helper';
 import {ErrorResponse} from '../util/message';
 import BaseService from './base';
 import {uploadImage} from './external/aws';

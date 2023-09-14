@@ -1,15 +1,15 @@
 import {CookieOptions} from 'express';
-import {isDev, isLocal} from '../util/helper';
+import {DOMAIN_NAME, ENVIRONMENT} from '../constants';
 
 const TOKEN_COOKIE_OPTIONS: CookieOptions = {
-  domain: isLocal ? 'localhost' : '.resumed.website',
+  domain: ENVIRONMENT === 'local' ? 'localhost' : `.${DOMAIN_NAME}`,
   httpOnly: true,
   path: '/',
   sameSite: 'none',
   secure: true,
 };
 export const cookieName = (name: string): string => {
-  const env = isLocal ? '-local' : isDev ? '-dev' : '';
+  const env = ENVIRONMENT !== 'prod' ? `-${ENVIRONMENT}` : '';
 
   return name + env;
 };

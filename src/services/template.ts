@@ -11,7 +11,6 @@ import ResumeDB from '../models/resume';
 import BaseService from './base';
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 import Mustache from 'mustache';
-import {uploadToUserBucket} from './external/aws';
 
 const BASE_PATH = '../templates';
 export const AUTH_HTML = fs
@@ -28,6 +27,9 @@ export const BASIC_HTML = fs
   .toString();
 export const MINIMAL_HTML = fs
   .readFileSync(path.join(__dirname, `${BASE_PATH}/minimal/index.html`))
+  .toString();
+export const TEMP_HTML = fs
+  .readFileSync(path.join(__dirname, `${BASE_PATH}/temporary/index.html`))
   .toString();
 export const renderTemplate = (template: any, data: any) => {
   return Mustache.render(template, data);
@@ -96,7 +98,7 @@ class Template extends BaseService<'TemplateService'> {
 
     return null;
   }
-  create = async (bucket: string): Promise<boolean | null> => {
+  create = async (): Promise<boolean | null> => {
     const templates: any = {
       basic: BASIC_HTML,
       minimal: MINIMAL_HTML,
@@ -130,7 +132,7 @@ class Template extends BaseService<'TemplateService'> {
       currentPostion: experience.position,
       lightBackground: this.theme === 'light',
     });
-    await uploadToUserBucket(bucket, newFile, 'index.html', this.templateName);
+    /*await uploadToUserBucket(bucket, newFile, 'index.html', this.templateName);
     for (const file of fs.readdirSync(
       path.join(__dirname, `../templates/${this.templateName}`)
     )) {
@@ -184,7 +186,7 @@ class Template extends BaseService<'TemplateService'> {
           }
         }
       }
-    }
+    }*/
     return true;
   };
 

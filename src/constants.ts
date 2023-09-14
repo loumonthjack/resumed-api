@@ -1,23 +1,33 @@
-import {isDev, isLocal} from './util/helper';
-
 export const PORT = process.env.PORT || 4000;
 export const NODE_ENV = process.env.NODE_ENV || 'localhost';
-export const DOMAIN_NAME = process.env.DOMAIN_NAME || '';
+export const DOMAIN_NAME = process.env.DOMAIN_NAME || 'resumed.website';
 
-export const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
-const FRONTEND_ALIAS = process.env.FRONTEND_ALIAS || '';
-export const SERVER_URL =
-  process.env.SERVER_URL || isLocal
-    ? 'http://localhost:4000'
-    : isDev
-    ? 'http://api.dev.resumed.website'
-    : 'https://api.resumed.website';
-const SERVER_ALIAS = process.env.SERVER_ALIAS || '';
+export const FRONTEND_URL = process.env.FRONTEND_URL;
+const getEnvironmentDomain = () => {
+  if (NODE_ENV === 'development') return `api.dev.${DOMAIN_NAME}`;
+  if (NODE_ENV === 'production') return `api.${DOMAIN_NAME}`;
+  return NODE_ENV + ':' + PORT;
+};
+const getCurrentEnv = (): string => {
+  if (NODE_ENV === 'development') {
+    return 'dev';
+  } else if (NODE_ENV === 'production') {
+    return 'prod';
+  }
+  return 'local';
+};
+
+export const isLocal = getCurrentEnv() === 'local';
+export const isDev = getCurrentEnv() === 'dev';
+export const DEFAULT_IMAGE = `https://s3.us-west-2.amazonaws.com/app.${getCurrentEnv()}.${DOMAIN_NAME}/profile_pics/default.png`;
+export const SERVER_URL = getEnvironmentDomain();
+export const ENVIRONMENT = getCurrentEnv();
 export const ALLOWED_ORIGINS = [
-  FRONTEND_URL,
-  FRONTEND_ALIAS,
-  SERVER_URL,
-  SERVER_ALIAS,
+  'http://' + FRONTEND_URL,
+  'https://' + FRONTEND_URL,
+  'http://' + SERVER_URL,
+  'https://' + SERVER_URL,
+  'http://localhost:' + PORT,
 ];
 export const OPENAI_KEY = process.env.OPENAI_API_KEY || '';
 export const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || '';
@@ -25,7 +35,8 @@ export const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || '';
 export const AWS_REGION = process.env.AWS_REGION || '';
 export const AWS_HOSTED_ZONE_ID = process.env.AWS_HOSTED_ZONE_ID || '';
 export const AWS_BUCKET_NAME = process.env.AWS_BUCKET_NAME || '';
-
+export const AWS_ACM_NAME = process.env.AWS_ACM_NAME || '';
+export const AWS_ACM_VALUE = process.env.AWS_ACM_VALUE || '';
 export const GMAIL_EMAIL = process.env.GMAIL_EMAIL || '';
 export const GMAIL_PASSWORD = process.env.GMAIL_PASSWORD || '';
 export const SES_EMAIL = process.env.SES_EMAIL || '';
@@ -37,9 +48,6 @@ export const STRIPE_SECRET_KEY =
   NODE_ENV === 'production'
     ? process.env.STRIPE_SECRET_KEY
     : process.env.STRIPE_SECRET_KEY_TEST;
-
-export const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID || '';
-export const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN || '';
 
 export const STATUS = {
   PENDING: 'pending',

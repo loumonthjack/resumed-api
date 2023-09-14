@@ -3,10 +3,10 @@ import {
   AWS_BUCKET_NAME,
   AWS_REGION,
   AWS_SECRET_ACCESS_KEY,
+  DOMAIN_NAME,
 } from '../../constants';
 import {UserType} from '../../types';
-import {getFileType, isDev, isLocal} from '../../util/helper';
-import fs from 'fs';
+import {getFileType} from '../../util/helper';
 const fse = require('fs-extra');
 import AWS from 'aws-sdk';
 import {ACM} from '@aws-sdk/client-acm';
@@ -14,7 +14,6 @@ import {CloudFront} from '@aws-sdk/client-cloudfront';
 import {CloudWatchLogs} from '@aws-sdk/client-cloudwatch-logs';
 import {Route53} from '@aws-sdk/client-route-53';
 import {Route53Domains} from '@aws-sdk/client-route-53-domains';
-import {Upload} from '@aws-sdk/lib-storage';
 import {
   PutBucketPolicyCommand,
   S3Client,
@@ -24,9 +23,6 @@ import {
 import path from 'path';
 import User from '../user';
 import Website from '../website';
-
-export const DEFAULT_IMAGE =
-  'https://s3.amazonaws.com/app.resumed.website/profile_pics/Default.png';
 
 export const config = {
   accessKeyId: AWS_ACCESS_KEY_ID,
@@ -65,9 +61,9 @@ export const getBucketName = async (
   );
   if (!websiteResponse.website && checkIfInfoExist.users) {
     if (checkIfInfoExist.users.length >= 2) {
-      s3Url = `${userResponse.user.firstName}-${userResponse.user.lastName}-${checkIfInfoExist.users.length}.resumed.website`;
+      s3Url = `${userResponse.user.firstName}-${userResponse.user.lastName}-${checkIfInfoExist.users.length}.${DOMAIN_NAME}`;
     } else if (checkIfInfoExist.users.length === 1) {
-      s3Url = `${userResponse.user.firstName}-${userResponse.user.lastName}.resumed.website`;
+      s3Url = `${userResponse.user.firstName}-${userResponse.user.lastName}.${DOMAIN_NAME}`;
     }
   }
   return s3Url;
@@ -88,9 +84,9 @@ export const createWebsite = async (userId: UserType['id']) => {
   );
   if (!websiteResponse.website && checkIfInfoExist.users) {
     if (checkIfInfoExist.users.length >= 2) {
-      s3Url = `${userResponse.user.firstName}-${userResponse.user.lastName}-${checkIfInfoExist.users.length}.resumed.website`;
+      s3Url = `${userResponse.user.firstName}-${userResponse.user.lastName}-${checkIfInfoExist.users.length}.${DOMAIN_NAME}`;
     } else if (checkIfInfoExist.users.length === 1) {
-      s3Url = `${userResponse.user.firstName}-${userResponse.user.lastName}.resumed.website`;
+      s3Url = `${userResponse.user.firstName}-${userResponse.user.lastName}.${DOMAIN_NAME}`;
     }
   }
 
@@ -187,9 +183,7 @@ export const uploadResume = async (
   const type = file.split(';')[0].split('/')[1];
   const params = {
     Bucket: AWS_BUCKET_NAME,
-    Key: `resumes/${
-      isLocal ? 'local/' : isDev ? 'dev/' : 'prod/'
-    }${userId}.pdf`,
+    Key: `resumes/${userId}.pdf`,
     Body: base64Data,
     ContentEncoding: 'base64',
     ContentType: `application/pdf`,
@@ -207,9 +201,7 @@ export const uploadImage = async (file: string, userId: UserType['id']) => {
   const type = file.split(';')[0].split('/')[1];
   const params = {
     Bucket: AWS_BUCKET_NAME,
-    Key: `profile_pics/${
-      isLocal ? 'local/' : isDev ? 'dev/' : 'prod/'
-    }${userId}.${type}`,
+    Key: `profile_pics/${userId}.${type}`,
     ContentType: `image/${type}`,
     ContentEncoding: 'base64',
     Body: base64Data,

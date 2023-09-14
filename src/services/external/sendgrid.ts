@@ -49,7 +49,6 @@ class Sendgrid {
         email: to,
       })
     );
-    console.log(await success);
     if (!success) throw new Error('Email could not be sent to' + to);
     return success;
   }
