@@ -97,10 +97,10 @@
 	</section>
 
 	<section id="welcome">
-        {{#hasProfilePicture}}
+        {{#hasProfilePicture !== false}}
 		<img alt="" class="thumb-middle"
 			src="{{user.profilePicture}}">
-        {{/hasProfilePicture}}
+        {{/hasProfilePicture !== false}}
 		<div class="container">
 			<div class="row">
 				<div class="hero col-sm-6 col-sm-offset-3">
