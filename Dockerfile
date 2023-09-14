@@ -1,4 +1,4 @@
-FROM --platform=amd64 node:16-buster-slim
+FROM --platform=amd64 node:18
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
