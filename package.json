@@ -6,7 +6,7 @@
   "main": "server.ts",
   "scripts": {
     "start": "ts-node src/server.ts",
-    "start:dev": "nodemon src/server.ts",
+    "dev": "nodemon src/server.ts",
     "db:push": "npx prisma db push",
     "migration:dev": "npx prisma migrate dev --name init",
     "seed": "ts-node prisma/seed.ts",
