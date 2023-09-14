@@ -142,8 +142,11 @@ const expressServer = async () => {
     });
     const experience = resume.experience && (resume.experience[0] as any);
     const newFile = renderTemplate(templates['temp'], {
+      resume,
       AWS_BUCKET_NAME: `https://s3.us-west-2.amazonaws.com/${AWS_BUCKET_NAME}/templates/basic/`,
-      title: resume.experience ? experience.position : title,
+      title:
+        websiteUser.firstName.charAt(0).toUpperCase() +
+        websiteUser.lastName.charAt(0).toUpperCase(),
       latestPosition: experience.position,
       headerFirst: websiteUser.firstName.toUpperCase(),
       headerLast: websiteUser.lastName.toUpperCase(),
