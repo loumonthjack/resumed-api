@@ -141,7 +141,7 @@ const expressServer = async () => {
     const experience = resume.experience && (resume.experience[0] as any);
     const newFile = renderTemplate(templates['temp'], {
       resume,
-      hasProfilePicture: websiteUser.profilePicture !== DEFAULT_IMAGE,
+      hasProfilePicture: websiteUser.profilePicture === DEFAULT_IMAGE,
       hasResumeExperience: resume.experience !== undefined,
       hasResumeEducation: resume.education !== undefined,
       AWS_BUCKET_NAME: `https://s3.us-west-2.amazonaws.com/${AWS_BUCKET_NAME}/templates/basic/`,
