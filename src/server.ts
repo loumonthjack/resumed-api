@@ -15,6 +15,7 @@ import {
   ALLOWED_ORIGINS,
   ENVIRONMENT,
   AWS_BUCKET_NAME,
+  DEFAULT_IMAGE,
 } from './constants';
 import {Middleware, authorize} from './services/auth';
 import resolvers from './routes/graphql/index';
@@ -120,10 +121,7 @@ const expressServer = async () => {
       </body>
     </html>`);
     }
-    // first letter of first name and last name
-    const title = `${websiteUser.firstName
-      .charAt(0)
-      .toUpperCase()}${websiteUser.lastName.charAt(0).toUpperCase()}`;
+
     const resume = await ResumeDB.getByUserId(website.userId);
     if (!resume) {
       return null;
@@ -143,6 +141,9 @@ const expressServer = async () => {
     const experience = resume.experience && (resume.experience[0] as any);
     const newFile = renderTemplate(templates['temp'], {
       resume,
+      hasProfilePicture: websiteUser.profilePicture !== DEFAULT_IMAGE,
+      hasResumeExperience: resume.experience !== undefined,
+      hasResumeEducation: resume.education !== undefined,
       AWS_BUCKET_NAME: `https://s3.us-west-2.amazonaws.com/${AWS_BUCKET_NAME}/templates/basic/`,
       title:
         websiteUser.firstName.charAt(0).toUpperCase() +

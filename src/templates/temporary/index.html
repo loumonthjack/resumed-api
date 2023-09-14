@@ -98,7 +98,7 @@
 
 	<section id="welcome">
 		<img alt="" class="thumb-middle"
-			src="https://s3.amazonaws.com/app.resumed.website/profile_pics/profile-pic.png">
+			src="{{user.profilePicture}}">
 		<div class="container">
 			<div class="row">
 				<div class="hero col-sm-6 col-sm-offset-3">
@@ -183,11 +183,11 @@
 		<div class="container">
 			<div class="cv-wrapper">
 				<div class="row cv">
-                    {{#resume.education}}
+                    {{#hasResumeEducation}}
 					<div class="col-lg-3 title">
 						<h3 class="headline-inline">EDUCATION</h3>
 					</div>
-                    {{/resume.education}}
+                    {{/hasResumeEducation}}
                     {{#resume.education}}
 					<div class="cv-entry animated" data-animation-delay="100" data-animation="fadeInLeft">
 						<div class="col-lg-6 main">
@@ -205,11 +205,11 @@
 				</div>
 
 				<div class="row cv">
-                    {{#resume.experience}}
+                    {{#hasResumeExperience}}
 					<div class="col-lg-3 title">
 						<h3 class="headline-inline">WORK</h3>
 					</div>
-                    {{/resume.experience}}
+                    {{/hasResumeExperience}}
                     {{#resume.experience}}
 					<div class="cv-entry animated" data-animation-delay="100" data-animation="fadeInLeft">
 						<div class="col-lg-6 main">
@@ -238,7 +238,7 @@
 			</p>
 		</div>
 	</section>
-	{{#user.type == 'FREE'}}
+	{{#user.type === 'FREE'}}
 	<section class="callToAction">
 		<div class="container animated" data-animation-delay="200" data-animation="rubberBand">
 			<img src="https://s3.amazonaws.com/resumed.website/static/images/png/image+(1).png" alt="" />
@@ -248,7 +248,7 @@
 				Check it out</button>
 		</div>
 	</section>
-	{{/user.type == 'FREE'}}
+	{{/user.type === 'FREE'}}
 
 	<section id="awards">
 		{{#resume.awards}}
