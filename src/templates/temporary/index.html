@@ -97,8 +97,10 @@
 	</section>
 
 	<section id="welcome">
+        {{#hasProfilePicture}}
 		<img alt="" class="thumb-middle"
 			src="{{user.profilePicture}}">
+        {{/hasProfilePicture}}
 		<div class="container">
 			<div class="row">
 				<div class="hero col-sm-6 col-sm-offset-3">
