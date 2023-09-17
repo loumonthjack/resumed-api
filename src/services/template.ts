@@ -31,7 +31,30 @@ export const MINIMAL_HTML = fs
 export const TEMP_HTML = fs
   .readFileSync(path.join(__dirname, `${BASE_PATH}/temporary/index.html`))
   .toString();
-export const renderTemplate = (template: any, data: any) => {
+export const ERROR_HTML = fs
+  .readFileSync(path.join(__dirname, `${BASE_PATH}/temporary/error.html`))
+  .toString();
+export const renderTemplate = (
+  template: string,
+  data: {
+    [key: string]: any;
+  }
+): string | null => {
+  if (!template) {
+    return null;
+  }
+  if (template === 'error') {
+    return Mustache.render(ERROR_HTML, data);
+  }
+  if (template === 'basic') {
+    return Mustache.render(TEMP_HTML, data);
+  }
+  if (template === 'login') {
+    return Mustache.render(AUTH_HTML, data);
+  }
+  if (template === 'welcome') {
+    return Mustache.render(WELCOME_HTML, data);
+  }
   return Mustache.render(template, data);
 };
 

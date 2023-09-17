@@ -31,6 +31,7 @@ import cors from 'cors';
 import WebsiteDB from './models/website';
 import {
   BASIC_HTML,
+  ERROR_HTML,
   MINIMAL_HTML,
   MODERN_HTML,
   TEMP_HTML,
@@ -80,46 +81,35 @@ const expressServer = async () => {
   app.use(express.json());
   app.use(express.urlencoded({extended: true}));
   app.get('/', async (req, res) => {
-    if (!req.hostname) {
-      return res.status(404).send(`<html>
-      <head>
-        <title>404</title>
-      </head>
-      <body>
-        <h1>404</h1>
-        <p>Website not found</p>
-      </body>
-    </html>`);
-    }
-    const website = await WebsiteDB.getByUrl(req.hostname);
-    if (!website) {
-      return res.status(404).send(`<html>
-      <head>
-        <title>404</title>
-      </head>
-      <body>
-        <h1>404</h1>
-        <p>Website not found</p>
-      </body>
-    </html>`);
-    }
-    const templates: any = {
+    const templates = {
       basic: BASIC_HTML,
       minimal: MINIMAL_HTML,
       modern: MODERN_HTML,
       temp: TEMP_HTML,
     };
+    if (!req.hostname) {
+      return res.status(404).send(
+        renderTemplate('error', {
+          AWS_BUCKET_NAME: `https://s3.us-west-2.amazonaws.com/${AWS_BUCKET_NAME}/templates/basic/`,
+        })
+      );
+    }
+    const website = await WebsiteDB.getByUrl(req.hostname);
+    if (!website) {
+      return res.status(404).send(
+        renderTemplate('error', {
+          AWS_BUCKET_NAME: `https://s3.us-west-2.amazonaws.com/${AWS_BUCKET_NAME}/templates/basic/`,
+        })
+      );
+    }
+
     const websiteUser = await UserDB.get(website.userId);
     if (!websiteUser) {
-      return res.status(404).send(`<html>
-      <head>
-        <title>404</title>
-      </head>
-      <body>
-        <h1>404</h1>
-        <p>Something went wrong</p>
-      </body>
-    </html>`);
+      return res.status(404).send(
+        renderTemplate('error', {
+          AWS_BUCKET_NAME: `https://s3.us-west-2.amazonaws.com/${AWS_BUCKET_NAME}/templates/basic/`,
+        })
+      );
     }
 
     const resume = await ResumeDB.getByUserId(website.userId);
@@ -139,7 +129,7 @@ const expressServer = async () => {
       };
     });
     const experience = resume.experience && (resume.experience[0] as any);
-    const newFile = renderTemplate(templates['temp'], {
+    const newFile = renderTemplate(website.template.toLowerCase(), {
       resume,
       hasProfilePicture: websiteUser.profilePicture === DEFAULT_IMAGE,
       hasResumeExperience: resume.experience !== undefined,
@@ -255,6 +245,13 @@ async function apolloServer(app: any, typeDefs: any, resolvers: any) {
   });
   await graphQLServer.start();
   graphQLServer.applyMiddleware({app, path: '/graphql', cors: false});
+  app.all('*', (req: any, res: any) => {
+    return res.status(404).send(
+      renderTemplate('error', {
+        AWS_BUCKET_NAME: `https://s3.us-west-2.amazonaws.com/${AWS_BUCKET_NAME}/templates/basic/`,
+      })
+    );
+  });
   await new Promise<void>(resolve => httpServer.listen({port: PORT}, resolve));
   console.log(SUCCESS_RESPONSE.MESSAGE.RUNNING(`🚀http://${SERVER_URL}/`));
 }

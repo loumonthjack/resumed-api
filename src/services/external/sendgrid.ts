@@ -31,24 +31,23 @@ class Sendgrid {
   loginUrl = (token: number, to: string) =>
     `${FRONTEND_URL}/verify?email=${to}&code=${token.toString()}`;
   async sendAuthEmail(to: string, token: number) {
-    const success = this.sendEmail(
-      to,
-      'Sign In for Resumed',
-      renderTemplate(AUTH_HTML, {token, url: this.loginUrl(token, to)})
-    );
+    const template = renderTemplate('login', {
+      token,
+      url: this.loginUrl(token, to),
+    });
+    if (!template) throw new Error('Template could not be rendered');
+    const success = this.sendEmail(to, 'Sign In for Resumed', template);
     if (!success) throw new Error('Email could not be sent to' + to);
     return success;
   }
   async sendWelcomeEmail(to: string, token: number) {
-    const success = this.sendEmail(
-      to,
-      'Activate Your Account',
-      renderTemplate(WELCOME_HTML, {
-        token,
-        url: this.loginUrl(token, to),
-        email: to,
-      })
-    );
+    const template = renderTemplate('welcome', {
+      token,
+      url: this.loginUrl(token, to),
+      email: to,
+    });
+    if (!template) throw new Error('Template could not be rendered');
+    const success = this.sendEmail(to, 'Activate Your Account', template);
     if (!success) throw new Error('Email could not be sent to' + to);
     return success;
   }
