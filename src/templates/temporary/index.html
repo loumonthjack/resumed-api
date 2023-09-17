@@ -91,7 +91,7 @@
 		</div>
 		<div id="slides">
 			<div class="slides-container">
-				<img src="https://app.resumed.website.s3-website.amazonaws.com/templates/img/background.png" alt="" />
+				<img src="{{AWS_BUCKET_NAME}}img/poly-bg.jpg" alt="" />
 			</div>
 		</div>
 	</section>
@@ -240,7 +240,7 @@
 			</p>
 		</div>
 	</section>
-	{{#user.type === 'FREE'}}
+	{{#isFreeUser}}
 	<section class="callToAction">
 		<div class="container animated" data-animation-delay="200" data-animation="rubberBand">
 			<img src="https://s3.amazonaws.com/resumed.website/static/images/png/image+(1).png" alt="" />
@@ -250,10 +250,9 @@
 				Check it out</button>
 		</div>
 	</section>
-	{{/user.type === 'FREE'}}
-
+	{{/isFreeUser}}
+    {{#resume.awards}}
 	<section id="awards">
-		{{#resume.awards}}
 		<div class="container">
 			<div class="row">
 				<div class="hero col-sm-6 col-sm-offset-3">
@@ -274,8 +273,8 @@
 
 			</div><!--row-->
 		</div>
-		{{/resume.awards}}
-	</section>
+		
+	</section>{{/resume.awards}}
 
 	<section id="contact" class="no-section-padding">
 		<svg preserveAspectRatio="none" viewBox="0 0 100 102" height="100" width="100%" version="1.1"

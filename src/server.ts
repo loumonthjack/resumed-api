@@ -131,6 +131,7 @@ const expressServer = async () => {
     const experience = resume.experience && (resume.experience[0] as any);
     const newFile = renderTemplate(website.template.toLowerCase(), {
       resume,
+      isFreeUser: websiteUser.type === 'FREE' ? true : undefined,
       hasProfilePicture: websiteUser.profilePicture === DEFAULT_IMAGE,
       hasResumeExperience: resume.experience !== undefined,
       hasResumeEducation: resume.education !== undefined,
