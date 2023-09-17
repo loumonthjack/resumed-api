@@ -29,17 +29,10 @@ import http from 'http';
 import express from 'express';
 import cors from 'cors';
 import WebsiteDB from './models/website';
-import {
-  BASIC_HTML,
-  ERROR_HTML,
-  MINIMAL_HTML,
-  MODERN_HTML,
-  TEMP_HTML,
-  renderTemplate,
-} from './services/template';
+import {renderTemplate} from './services/template';
 import UserDB from './models/user';
 import ResumeDB from './models/resume';
-import path from 'path';
+
 const mustacheExpress = require('mustache-express');
 const bodyParser = require('body-parser');
 
@@ -81,35 +74,17 @@ const expressServer = async () => {
   app.use(express.json());
   app.use(express.urlencoded({extended: true}));
   app.get('/', async (req, res) => {
-    const templates = {
-      basic: BASIC_HTML,
-      minimal: MINIMAL_HTML,
-      modern: MODERN_HTML,
-      temp: TEMP_HTML,
-    };
     if (!req.hostname) {
-      return res.status(404).send(
-        renderTemplate('error', {
-          AWS_BUCKET_NAME: `https://s3.us-west-2.amazonaws.com/${AWS_BUCKET_NAME}/templates/basic/`,
-        })
-      );
+      return res.status(404).send(renderTemplate('error'));
     }
     const website = await WebsiteDB.getByUrl(req.hostname);
     if (!website) {
-      return res.status(404).send(
-        renderTemplate('error', {
-          AWS_BUCKET_NAME: `https://s3.us-west-2.amazonaws.com/${AWS_BUCKET_NAME}/templates/basic/`,
-        })
-      );
+      return res.status(404).send(renderTemplate('error'));
     }
 
     const websiteUser = await UserDB.get(website.userId);
     if (!websiteUser) {
-      return res.status(404).send(
-        renderTemplate('error', {
-          AWS_BUCKET_NAME: `https://s3.us-west-2.amazonaws.com/${AWS_BUCKET_NAME}/templates/basic/`,
-        })
-      );
+      return res.status(404).send(renderTemplate('error'));
     }
 
     const resume = await ResumeDB.getByUserId(website.userId);
@@ -129,40 +104,37 @@ const expressServer = async () => {
       };
     });
     const experience = resume.experience && (resume.experience[0] as any);
-    const newFile = renderTemplate(website.template.toLowerCase(), {
-      resume,
-      isFreeUser: websiteUser.type === 'FREE' ? true : undefined,
-      hasProfilePicture: websiteUser.profilePicture === DEFAULT_IMAGE,
-      hasResumeExperience: resume.experience !== undefined,
-      hasResumeEducation: resume.education !== undefined,
-      AWS_BUCKET_NAME: `https://s3.us-west-2.amazonaws.com/${AWS_BUCKET_NAME}/templates/basic/`,
-      title:
-        websiteUser.firstName.charAt(0).toUpperCase() +
-        websiteUser.lastName.charAt(0).toUpperCase(),
-      latestPosition: experience.position,
-      headerFirst: websiteUser.firstName.toUpperCase(),
-      headerLast: websiteUser.lastName.toUpperCase(),
-      user: {
-        ...websiteUser,
-        firstName:
+    const newFile = renderTemplate(
+      website.template.toLowerCase(),
+      {
+        resume,
+        isFreeUser: websiteUser.type === 'FREE' ? true : undefined,
+        hasProfilePicture:
+          websiteUser.profilePicture === DEFAULT_IMAGE ? true : undefined,
+        hasResumeExperience: resume.experience !== undefined,
+        hasResumeEducation: resume.education !== undefined,
+        AWS_BUCKET_NAME: `https://s3.us-west-2.amazonaws.com/${AWS_BUCKET_NAME}/templates/basic/`,
+        title:
           websiteUser.firstName.charAt(0).toUpperCase() +
-          websiteUser.firstName.slice(1),
-        lastName:
-          websiteUser.lastName.charAt(0).toUpperCase() +
-          websiteUser.lastName.slice(1),
+          websiteUser.lastName.charAt(0).toUpperCase(),
+        latestPosition: experience.position,
+        headerFirst: websiteUser.firstName.toUpperCase(),
+        headerLast: websiteUser.lastName.toUpperCase(),
+        user: {
+          ...websiteUser,
+          firstName:
+            websiteUser.firstName.charAt(0).toUpperCase() +
+            websiteUser.firstName.slice(1),
+          lastName:
+            websiteUser.lastName.charAt(0).toUpperCase() +
+            websiteUser.lastName.slice(1),
+        },
+        userResumeUrl: `https://s3.us-west-2.amazonaws.com/${AWS_BUCKET_NAME}/resumes/${website.userId}.pdf`,
+        env: ENVIRONMENT,
+        currentPostion: experience.position,
       },
-      userResumeUrl: `https://s3.us-west-2.amazonaws.com/${AWS_BUCKET_NAME}/resumes/${website.userId}.pdf`,
-      env: ENVIRONMENT,
-      currentPostion: experience.position,
-      lightBackground: website.theme === 'light',
-    });
-    if (website.template === 'BASIC') {
-      app.use(express.static(path.join(__dirname + `/templates/temp`)));
-    } else if (website.template === 'MODERN') {
-      app.use(express.static(path.join(__dirname + `/templates/modern`)));
-    } else if (website.template === 'MINIMAL') {
-      app.use(express.static(path.join(__dirname + `/templates/minimal`)));
-    }
+      website.theme.toLowerCase()
+    );
     // instead of sending the file, send the rendered html
     return res.send(newFile);
   });
@@ -247,11 +219,7 @@ async function apolloServer(app: any, typeDefs: any, resolvers: any) {
   await graphQLServer.start();
   graphQLServer.applyMiddleware({app, path: '/graphql', cors: false});
   app.all('*', (req: any, res: any) => {
-    return res.status(404).send(
-      renderTemplate('error', {
-        AWS_BUCKET_NAME: `https://s3.us-west-2.amazonaws.com/${AWS_BUCKET_NAME}/templates/basic/`,
-      })
-    );
+    return res.status(404).send(renderTemplate('error'));
   });
   await new Promise<void>(resolve => httpServer.listen({port: PORT}, resolve));
   console.log(SUCCESS_RESPONSE.MESSAGE.RUNNING(`🚀http://${SERVER_URL}/`));

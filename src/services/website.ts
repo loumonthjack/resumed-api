@@ -1,5 +1,4 @@
 import path from 'path';
-import Template from './template';
 import User from './user';
 import {
   STATUS,
@@ -255,9 +254,6 @@ export class Builder {
         });
     });
     return Promise.all(promises);
-  };
-  newTemplate = async (template: string, theme: string) => {
-    return await new Template(template, theme, this.user).create();
   };
   newSubDomain = async (domain: string) => {
     const params = {
