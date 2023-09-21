@@ -14,7 +14,7 @@ interface Response {
   code: number;
 }
 class ResumeService extends BaseService<'ResumeService'> {
-  async enhance(
+  async improve(
     userId: string,
     field: 'bio' | 'experience' | 'education' | 'skills' | 'awards' | 'links',
     arrayNumber?: number
@@ -36,15 +36,11 @@ class ResumeService extends BaseService<'ResumeService'> {
       if (!description) return ErrorResponse();
       enhanceData = description;
     }
-    const prompt = `Write the following statement in a more professional way: \n Statement: "${enhanceData}"`;
-    const aiResponse = await AI.complete(prompt);
-
-    const resumeData = JSON.parse(aiResponse!);
-    const enhancedResume = () => {
+    const enhancedResume = (changedData: string | undefined) => {
       const resume = resumeResponse.resume;
       if (field === 'bio') {
         return {
-          bio: resumeData,
+          bio: changedData,
           education: resume?.education,
           experience: resume?.experience,
           skills: resume?.skills,
@@ -53,7 +49,7 @@ class ResumeService extends BaseService<'ResumeService'> {
         };
       } else if (field === 'experience') {
         const experience = resume?.experience![arrayNumber!];
-        experience!.description = resumeData;
+        experience!.description = changedData;
         return {
           bio: resume?.bio,
           education: resume?.education,
@@ -72,8 +68,13 @@ class ResumeService extends BaseService<'ResumeService'> {
         links: resume?.links,
       };
     };
-    if (!enhancedResume()) return ErrorResponse();
-    const response = await this.upsert(userId, enhancedResume());
+    const prompt = `Write the following statement in a more professional way: \n Statement: "${enhanceData}"`;
+    const aiResponse = await AI.complete(prompt);
+    const resumeData = JSON.parse(aiResponse!);
+    const enhance = enhancedResume(resumeData);
+    if (!enhance) return ErrorResponse();
+
+    const response = await this.upsert(userId, enhance);
     if (!response.resume) return ErrorResponse();
     return this.response({resume: response.resume});
   }

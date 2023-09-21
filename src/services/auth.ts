@@ -27,6 +27,7 @@ interface Response {
 class AuthService extends BaseService<'AuthService'> {
   async register(data: {
     email: string;
+    userName: string;
     firstName: string;
     lastName: string;
     profilePicture?: string;
@@ -36,9 +37,10 @@ class AuthService extends BaseService<'AuthService'> {
       return ErrorResponse('already_exist', 'User');
     }
     const response = await User.create({
-      email: data.email.toLowerCase(),
-      firstName: data.firstName.toLowerCase(),
-      lastName: data.lastName.toLowerCase(),
+      email: data.email.toLowerCase().trim(),
+      userName: data.userName.toLowerCase().trim(),
+      firstName: data.firstName.toLowerCase().trim(),
+      lastName: data.lastName.toLowerCase().trim(),
       profilePicture: DEFAULT_IMAGE,
       externalId: null,
       lastLogin: null,
@@ -67,17 +69,26 @@ class AuthService extends BaseService<'AuthService'> {
     });
   }
 
-  async login(email: string): Promise<Response> {
-    const activeUser = await User.getByEmail(email);
-    if (!activeUser.user) {
+  async login(emailOrUserName: string): Promise<Response> {
+    const userName = await User.getByUserName(emailOrUserName.toLowerCase());
+    const email = await User.getByEmail(emailOrUserName.toLowerCase());
+    const getUser = userName.user ? 'userName' : email.user ? 'email' : null;
+    if (!getUser) {
       return ErrorResponse('not_found');
     }
-    await Payment.checkSubscription(activeUser.user.id);
-    const response = await Session.create(activeUser.user.id, email);
+    let user;
+    if (getUser === 'userName') {
+      user = userName.user;
+    } else if (getUser === 'email') {
+      user = email.user;
+    }
+    if (!user) return ErrorResponse('not_found');
+    await Payment.checkSubscription(user.id);
+    const response = await Session.create(user.id, user.email);
     if (response.code !== 200) {
       return ErrorResponse();
     }
-    return this.response({success: true, user: activeUser.user});
+    return this.response({success: true, user});
   }
   async verify(data: {email: string; code: string}): Promise<Response> {
     const activeUser = await User.getByEmail(data.email);

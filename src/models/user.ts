@@ -88,6 +88,14 @@ class UserModel {
     });
     return users;
   }
+  async getByUserName(userName: string): Promise<UserType | null> {
+    const user = await db.findUnique({
+      where: {
+        userName,
+      },
+    });
+    return user ? user : null;
+  }
 }
 const UserDB = new UserModel();
 export default UserDB;

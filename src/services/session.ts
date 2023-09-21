@@ -1,12 +1,9 @@
-import {sendAuthEmail, sendMagicLink} from '../util/helper';
 import jwt from 'jsonwebtoken';
 import {ErrorResponse, SuccessResponse} from '../util/message';
 import SessionDB from '../models/session';
 import UserDB from '../models/user';
 import BaseService from './base';
 import Messenger from './external/sendgrid';
-import ResumeDB from '../models/resume';
-import WebsiteDB from '../models/website';
 
 interface Response {
   message?: string;

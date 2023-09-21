@@ -1,10 +1,11 @@
+import {TEMPLATE, TEMPLATE_TYPE} from '../../constants';
 import Service from '../../services/website';
 import {WebsiteType} from '../../types';
 const Website = {
   upsert: async (
     _: any,
     args: {
-      template: 'BASIC' | 'MODERN' | 'PROFESSIONAL';
+      template: (typeof TEMPLATE)[TEMPLATE_TYPE];
       theme: 'DARK' | 'LIGHT';
     },
     context: {session: {userId: string}}

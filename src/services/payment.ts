@@ -159,9 +159,15 @@ class PaymentService extends BaseService<'PaymentService'> {
     );
     if (!response.user) {
       const name = event.data.object.billing_details.name.split(' ');
+      const newUser = await User.generateUserName(
+        name[0].toLowerCase(),
+        name.length > 1 ? name[1].toLowerCase() : ''
+      );
+      if (!newUser.userName) return ErrorResponse();
       const response = await User.create({
         email: event.data.object.billing_details.email.toLowerCase(),
         firstName: name[0].toLowerCase(),
+        userName: newUser.userName,
         externalId: event.data.object.customer,
         lastName: name.length > 1 ? name[1].toLowerCase() : '',
         profilePicture: DEFAULT_IMAGE,

@@ -1,5 +1,5 @@
 import PlanDB from '../models/plan';
-import {ErrorResponse, SuccessResponse} from '../util/message';
+import {ErrorResponse} from '../util/message';
 import BaseService from './base';
 
 interface Response {

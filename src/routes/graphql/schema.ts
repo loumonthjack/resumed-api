@@ -12,11 +12,12 @@ const typeDefs = gql`
     domainAvailability(domain: String!): Boolean
   }
   type Mutation {
-    login(email: String!): AuthResponse
+    login(emailOrUserName: String!): AuthResponse
     logout: AuthResponse
     verify(email: String!, code: String!): AuthVerifyResponse
     register(
       email: String!
+      userName: String!
       firstName: String!
       lastName: String!
       profilePicture: String
@@ -31,6 +32,7 @@ const typeDefs = gql`
     ): Resume
     userUpdate(
       id: ID!
+      userName: String
       firstName: String
       lastName: String
       profilePicture: String
@@ -124,7 +126,7 @@ const typeDefs = gql`
   enum TemplateEnum {
     BASIC
     MODERN
-    PROFESSIONAL
+    PREMIUM
   }
   enum ThemeEnum {
     DARK
@@ -140,6 +142,7 @@ const typeDefs = gql`
   type User {
     id: String!
     email: String!
+    userName: String!
     firstName: String!
     lastName: String!
     onboardingStage: Int

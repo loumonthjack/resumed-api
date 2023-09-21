@@ -9,6 +9,7 @@ interface Response {
   message?: string;
   user?: UserType;
   users?: UserType[];
+  userName?: string;
   code: number;
 }
 class UserService extends BaseService<'UserService'> {
@@ -27,6 +28,11 @@ class UserService extends BaseService<'UserService'> {
   }
   async getByEmail(email: string): Promise<Response> {
     const user = await UserDB.getByEmail(email);
+    if (!user) return ErrorResponse();
+    return this.response({user: user});
+  }
+  async getByUserName(userName: string): Promise<Response> {
+    const user = await UserDB.getByUserName(userName);
     if (!user) return ErrorResponse();
     return this.response({user: user});
   }
@@ -49,6 +55,21 @@ class UserService extends BaseService<'UserService'> {
     const user = await UserDB.create(args);
     if (!user) return ErrorResponse();
     return this.response({user: user});
+  }
+  async generateUserName(
+    firstName: string,
+    lastName?: string
+  ): Promise<Response> {
+    const userName = `${firstName.toLowerCase().trim()}${
+      lastName ? `-${lastName.toLowerCase().trim()}` : ''
+    }`;
+    // Check if username exists
+    const userExists = await UserDB.getByUserName(userName);
+    if (userExists) {
+      const random = Math.floor(Math.random() * 1000);
+      return this.response({userName: `${userName}-${random}`});
+    }
+    return this.response({userName: userName});
   }
   async update(args: UserType): Promise<Response> {
     const response = await this.get(args.id);

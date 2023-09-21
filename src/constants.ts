@@ -2,7 +2,7 @@ export const PORT = process.env.PORT || 4000;
 export const NODE_ENV = process.env.NODE_ENV || 'localhost';
 export const DOMAIN_NAME = process.env.DOMAIN_NAME || 'resumed.website';
 
-export const FRONTEND_URL = process.env.FRONTEND_URL;
+export const FRONTEND_URL = process.env.FRONTEND_URL || 'localhost:3000';
 const getEnvironmentDomain = () => {
   if (NODE_ENV === 'development') return `api.dev.${DOMAIN_NAME}`;
   if (NODE_ENV === 'production') return `api.${DOMAIN_NAME}`;
@@ -56,10 +56,11 @@ export const STATUS = {
 };
 
 export const TEMPLATE = {
-  MODERN: 'MODERN',
-  BASIC: 'BASIC',
-  MINIMAL: 'PROFESSIONAL',
+  0: 'MODERN',
+  1: 'BASIC',
+  2: 'PREMIUM',
 };
+export type TEMPLATE_TYPE = 0 | 1 | 2;
 
 export const ERROR_RESPONSE = {
   MESSAGE: {

@@ -24,8 +24,8 @@ const Register = (routeName: string): Router =>
       email: email.toLowerCase().trim(),
       firstName: firstName.toLowerCase().trim(),
       lastName: lastName.toLowerCase().trim(),
-      profilePicture
-  });
+      profilePicture,
+    });
     await LogEvent(auth.code, 'Auth', auth, request);
     return response.status(auth.code).json({
       message: auth.message,

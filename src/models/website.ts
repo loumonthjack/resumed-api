@@ -16,7 +16,14 @@ class WebsiteModel {
     });
     return website ? website : null;
   }
-
+  async getById(id: string): Promise<WebsiteType | null> {
+    const website = await db.findUnique({
+      where: {
+        id,
+      },
+    });
+    return website ? website : null;
+  }
   async get(userId: string): Promise<WebsiteType | null> {
     const website = await db.findUnique({
       where: {

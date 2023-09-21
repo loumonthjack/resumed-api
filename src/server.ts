@@ -14,8 +14,8 @@ import {
   SERVER_URL,
   ALLOWED_ORIGINS,
   ENVIRONMENT,
-  AWS_BUCKET_NAME,
   DEFAULT_IMAGE,
+  AWS_BUCKET_NAME,
 } from './constants';
 import {Middleware, authorize} from './services/auth';
 import resolvers from './routes/graphql/index';
@@ -32,6 +32,7 @@ import WebsiteDB from './models/website';
 import {renderTemplate} from './services/template';
 import UserDB from './models/user';
 import ResumeDB from './models/resume';
+import Messenger from './services/external/sendgrid';
 
 const mustacheExpress = require('mustache-express');
 const bodyParser = require('body-parser');
@@ -77,7 +78,8 @@ const expressServer = async () => {
     if (!req.hostname) {
       return res.status(404).send(renderTemplate('error'));
     }
-    const website = await WebsiteDB.getByUrl(req.hostname);
+
+    const website = await WebsiteDB.getByUrl('localhost');
     if (!website) {
       return res.status(404).send(renderTemplate('error'));
     }
@@ -108,12 +110,15 @@ const expressServer = async () => {
       website.template.toLowerCase(),
       {
         resume,
+        validClient: website.id,
+        darkTheme: website.theme.toLowerCase() === 'dark' ? true : undefined,
+        lightTheme: website.theme.toLowerCase() === 'light' ? true : undefined,
         isFreeUser: websiteUser.type === 'FREE' ? true : undefined,
         hasProfilePicture:
           websiteUser.profilePicture === DEFAULT_IMAGE ? true : undefined,
         hasResumeExperience: resume.experience !== undefined,
         hasResumeEducation: resume.education !== undefined,
-        AWS_BUCKET_NAME: `https://s3.us-west-2.amazonaws.com/${AWS_BUCKET_NAME}/templates/basic/`,
+        hasResumeSkills: resume.skills !== undefined,
         title:
           websiteUser.firstName.charAt(0).toUpperCase() +
           websiteUser.lastName.charAt(0).toUpperCase(),
@@ -140,6 +145,34 @@ const expressServer = async () => {
   });
   app.get('/health-check', (req, res) => {
     res.status(200).send('OK');
+  });
+  app.post('/send-email', async (req, res) => {
+    const headers = req.headers;
+    if (!headers['x-valid-client']) {
+      return res.status(400).send('Missing X-Valid-Client header');
+    }
+    const website = await WebsiteDB.getById(
+      headers['x-valid-client']?.toString()
+    );
+    if (!website) {
+      return res.status(400).send('Invalid X-Valid-Client header');
+    }
+    const email = req.body.email;
+    const message = req.body.message;
+    const subject = req.body.subject;
+    if (!email || !message || !subject) {
+      return res.status(400).send('Missing email, message, or subject');
+    }
+    const emailSent = await Messenger.sendContactEmail({
+      domain: req.hostname,
+      email: String(email),
+      message: String(message),
+      subject: String(subject),
+    });
+    if (!emailSent) {
+      return res.status(500).send('Error sending email');
+    }
+    return res.status(200).send(true);
   });
 
   app.use(AuthRoute.webhook);

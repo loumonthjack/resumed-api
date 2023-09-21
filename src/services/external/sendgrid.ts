@@ -1,6 +1,8 @@
 import sendGrid from '@sendgrid/mail';
 import {AUTH_HTML, WELCOME_HTML, renderTemplate} from '../template';
 import {FRONTEND_URL} from '../../constants';
+import WebsiteDB from '../../models/website';
+import UserDB from '../../models/user';
 
 class Sendgrid {
   private client;
@@ -29,7 +31,7 @@ class Sendgrid {
     return this.getInstance().send(msg);
   }
   loginUrl = (token: number, to: string) =>
-    `${FRONTEND_URL}/verify?email=${to}&code=${token.toString()}`;
+    `http://${FRONTEND_URL}/verify?email=${to}&code=${token.toString()}`;
   async sendAuthEmail(to: string, token: number) {
     const template = renderTemplate('login', {
       token,
@@ -49,6 +51,35 @@ class Sendgrid {
     if (!template) throw new Error('Template could not be rendered');
     const success = this.sendEmail(to, 'Activate Your Account', template);
     if (!success) throw new Error('Email could not be sent to' + to);
+    return success;
+  }
+  async sendContactEmail(data: {
+    domain: string;
+    email: string;
+    message: string;
+    subject: string;
+  }) {
+    const template = renderTemplate('contact', {
+      message: data.message,
+      email: data.email,
+      subject: data.subject,
+    });
+    const getWebsiteUser = async () => {
+      const website = await WebsiteDB.getByUrl(data.domain);
+      if (!website) return null;
+      const user = await UserDB.get(website.userId);
+      if (!user) return null;
+      return user;
+    };
+    if (!template) throw new Error('Template could not be rendered');
+    const user = await getWebsiteUser();
+    if (!user) throw new Error('User could not be found');
+    const success = this.sendEmail(
+      user.email,
+      `Resumed: ${data.subject} sent you an message on your website.`,
+      template
+    );
+    if (!success) throw new Error('Email could not be sent to' + user.email);
     return success;
   }
 }

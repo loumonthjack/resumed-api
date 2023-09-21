@@ -7,13 +7,13 @@ const Auth = {
   login: async (
     _: unknown,
     args: {
-      email: string;
+      emailOrUserName: string;
     },
     context: any
   ): Promise<{
     success: boolean;
   }> => {
-    const auth = await Service.login(args.email.toLowerCase());
+    const auth = await Service.login(args.emailOrUserName.toLowerCase());
     if (!auth.success) {
       throw new Error(auth.message);
     }
@@ -25,6 +25,7 @@ const Auth = {
     _: unknown,
     args: {
       email: string;
+      userName: string;
       firstName: string;
       lastName: string;
       profilePicture?: string;
