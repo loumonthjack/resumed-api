@@ -45,6 +45,7 @@ const typeDefs = gql`
   }
   type AuthResponse {
     success: Boolean
+    isVerified: Boolean
   }
   type AuthVerifyResponse {
     token: String

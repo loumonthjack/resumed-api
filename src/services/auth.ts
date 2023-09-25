@@ -21,6 +21,7 @@ interface Response {
   code: number;
   token?: string;
   user?: UserType;
+  verified?: boolean;
   success?: boolean;
 }
 
@@ -88,7 +89,11 @@ class AuthService extends BaseService<'AuthService'> {
     if (response.code !== 200) {
       return ErrorResponse();
     }
-    return this.response({success: true, user});
+    return this.response({
+      success: true,
+      user,
+      verified: response.session?.verified,
+    });
   }
   async verify(data: {email: string; code: string}): Promise<Response> {
     const activeUser = await User.getByEmail(data.email);

@@ -12,6 +12,7 @@ const Auth = {
     context: any
   ): Promise<{
     success: boolean;
+    isVerified: boolean;
   }> => {
     const auth = await Service.login(args.emailOrUserName.toLowerCase());
     if (!auth.success) {
@@ -19,6 +20,7 @@ const Auth = {
     }
     return {
       success: auth.success,
+      isVerified: auth.verified || false,
     };
   },
   register: async (
