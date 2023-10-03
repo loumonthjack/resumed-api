@@ -1,5 +1,6 @@
 import Service from '../../services/user';
 import {UserType} from '../../types';
+import {setCookies} from '../helper';
 
 const User = {
   update: async (
@@ -23,6 +24,7 @@ const User = {
   ): Promise<UserType> => {
     const response = await Service.get(context.session.userId);
     if (!response.user) {
+      setCookies(context, 'resumed-token', '');
       throw new Error(response.message);
     }
     return response.user;
