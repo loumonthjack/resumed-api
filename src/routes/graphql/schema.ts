@@ -37,6 +37,7 @@ const typeDefs = gql`
       lastName: String
       profilePicture: String
       isOnboarding: Boolean
+      onboardingStage: Int
     ): User
     resumeDelete(id: ID!): Resume
     websiteDelete(id: ID!): Website
