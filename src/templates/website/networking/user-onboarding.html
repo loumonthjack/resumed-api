@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Resumed - Event Networking Registration">
+    <meta name="author" content="Ansonika">
+    <title>Resumed - New Attendee | Networking Made Easy</title>
+
+    <!-- Favicons-->
+    <link rel="shortcut icon" href="{{AWS_BUCKET_NAME}}img/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" type="image/x-icon"
+        href="{{AWS_BUCKET_NAME}}img/apple-touch-icon-57x57-precomposed.png">
+    <link rel="apple-touch-icon" type="image/x-icon" sizes="72x72"
+        href="{{AWS_BUCKET_NAME}}img/apple-touch-icon-72x72-precomposed.png">
+    <link rel="apple-touch-icon" type="image/x-icon" sizes="114x114"
+        href="{{AWS_BUCKET_NAME}}img/apple-touch-icon-114x114-precomposed.png">
+    <link rel="apple-touch-icon" type="image/x-icon" sizes="144x144"
+        href="{{AWS_BUCKET_NAME}}img/apple-touch-icon-144x144-precomposed.png">
+
+    <!-- GOOGLE WEB FONT -->
+    <link href="https://fonts.googleapis.com/css?family=Work+Sans:400,500,600" rel="stylesheet">
+
+    <!-- BASE CSS -->
+    <link href="{{AWS_BUCKET_NAME}}css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{AWS_BUCKET_NAME}}css/menu.css" rel="stylesheet">
+    <link href="{{AWS_BUCKET_NAME}}css/style.css" rel="stylesheet">
+    <link href="{{AWS_BUCKET_NAME}}css/vendors.css" rel="stylesheet">
+
+    <!-- YOUR CUSTOM CSS -->
+    <link href="{{AWS_BUCKET_NAME}}css/custom.css" rel="stylesheet">
+
+    <!-- MODERNIZR MENU -->
+    <script src="{{AWS_BUCKET_NAME}}js/modernizr.js"></script>
+    <script type="text/javascript">
+        window.onload = function () {//from ww  w . j  a  va2s. c  o  m
+            var today = new Date().toISOString().split('T')[0];
+            document.getElementsByName("startDate")[0].setAttribute('min', today);
+            const startDate = document.getElementsByName("startDate")[0];
+            const endDate = document.getElementsByName("endDate")[0];
+            startDate.addEventListener("change", (e) => {
+                endDate.setAttribute("min", e.target.value);
+            })
+
+
+        }
+
+    </script>
+</head>
+
+<body>
+
+    <div id="preloader">
+        <div data-loader="circle-side"></div>
+    </div><!-- /Preload -->
+
+    <div id="loader_form">
+        <div data-loader="circle-side-2"></div>
+    </div><!-- /loader_form 
+	
+	<nav>
+		<ul class="cd-primary-nav">
+			<li><a href="index.html" class="animated_link">Version 1</a></li>
+			<li><a href="index-2.html" class="animated_link">Version 2</a></li>
+			<li><a href="index-3.html" class="animated_link">Version 3</a></li>
+			<li><a href="index-4.html" class="animated_link">File Attachment demo</a></li>
+			<li><a href="about.html" class="animated_link">About Us</a></li>
+			<li><a href="contacts.html" class="animated_link">Contact Us</a></li>
+			<li><a href="#0" class="animated_link">Purchase Template</a></li>
+		</ul>
+	</nav>
+	-->
+
+    <div class="container-fluid">
+        <div class="row row-height">
+            <div class="col-xl-4 col-lg-4 content-left">
+                <div class="content-left-wrapper">
+                    <a href="#" id="logo"><img src="{{AWS_BUCKET_NAME}}img/icon.svg" alt="" width="100" height="90"></a>
+                    <div id="social">
+                        <ul>
+                            <li><a href="#0"><i class="icon-facebook"></i></a></li>
+                            <li><a href="#0"><i class="icon-twitter"></i></a></li>
+                            <li><a href="#0"><i class="icon-linkedin"></i></a></li>
+                        </ul>
+                    </div>
+                    <!-- /social -->
+                    <div>
+                        <h2>Join the Future of Networking</h2>
+                        <p>Unleash the Power of QR Codes for Dynamic Speed Networking</p>
+                        <!--<a href="#start" class="btn_1 rounded mobile_btn yellow">Start Now!</a>-->
+                    </div>
+                    <div class="copy">© 2022 Resumed</div>
+                </div>
+                <!-- /content-left-wrapper -->
+            </div>
+            <!-- /content-left -->
+            <div class="col-xl-8 col-lg-8 content-right" id="start">
+                <div id="wizard_container">
+                    <div id="top-wizard">
+                        <span id="location"></span>
+                    </div>
+                    <!-- /top-wizard -->
+                    <form id="wrapped" method="post" action="{{SERVER_URL}}/networking/{{event.name}}">
+                        <input id="website" name="website" type="text" value="">
+                        <!-- Leave for security protection, read docs for details -->
+                        <div id="middle-wizard">
+                            <div class="submit step">
+                                <h2 class="section_title">Please provide details below for {{event.displayName}}.</h2>
+                                {{#event.linkedin}}
+                                <div>
+                                    <br />
+                                    <div id="banner"></div>
+                                    <label for="linkedInUrl">Your LinkedIn Username</label>
+                                    <input type="text" name="linkedInUrl" id="linkedInUrl" />
+                                </div>
+                                {{/event.linkedin}}
+                                {{#event.personal}}
+                                <div>
+                                    <br />
+                                    <div id="banner"></div>
+                                    <label for="personalUrl">Your Website</label>
+                                    <input type="text" name="personalUrl" id="personalUrl" />
+                                </div>
+                                {{/event.personal}}
+                                {{#event.both}}
+                                <div>
+                                    <br />
+                                    <div id="banner"></div>
+                                    <label for="linkedInUrl">Your LinkedIn Username</label>
+                                    <input type="text" name="linkedInUrl" id="linkedInUrl" />
+                                </div>
+                                <style>
+                                    hr {
+                                        border: none;
+                                        border-top: 3px double #333;
+                                        color: #333;
+                                        overflow: visible;
+                                        text-align: center;
+                                        height: 5px;
+                                    }
+
+                                    hr:after {
+                                        background: #fff;
+                                        content: 'or';
+                                        padding: 0 4px;
+                                        position: relative;
+                                        top: -13px;
+                                    }
+                                </style>
+                                <div id="line">
+                                    <hr />
+
+                                </div>
+                                <div>
+                                    <label for="personalUrl">Your Website</label>
+                                    <input type="text" name="personalUrl" id="personalUrl" />
+                                </div>
+                                {{/event.both}}
+                            </div>
+                            <!-- /step-->
+
+
+                        </div>
+                        <!-- /middle-wizard -->
+                        <div id="bottom-wizard">
+                            <!--<button type="button" name="backward" class="backward">Prev</button>
+							<button type="button" name="forward" class="forward">Next</button>-->
+                            <button type="submit" name="process" class="submit">Submit</button>
+                        </div>
+                        <!-- /bottom-wizard -->
+                    </form>
+                </div>
+                <!-- /Wizard container -->
+            </div>
+            <!-- /content-right-->
+        </div>
+        <!-- /row-->
+    </div>
+    <!-- /container-fluid -->
+
+    <div class="cd-overlay-nav">
+        <span></span>
+    </div>
+    <!-- /cd-overlay-nav -->
+
+    <div class="cd-overlay-content">
+        <span></span>
+    </div>
+    <!-- /cd-overlay-content 
+
+	<a href="#0" class="cd-nav-trigger">Menu<span class="cd-icon"></span></a>
+	 -->
+
+    <!-- Modal terms -->
+    <div class="modal fade" id="terms-txt" tabindex="-1" role="dialog" aria-labelledby="termsLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="termsLabel">Terms and conditions</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Lorem ipsum dolor sit amet, in porro albucius qui, in <strong>nec quod novum accumsan</strong>,
+                        mei ludus tamquam dolores id. No sit debitis meliore postulant, per ex prompta alterum sanctus,
+                        pro ne quod dicunt sensibus.</p>
+                    <p>Lorem ipsum dolor sit amet, in porro albucius qui, in nec quod novum accumsan, mei ludus tamquam
+                        dolores id. No sit debitis meliore postulant, per ex prompta alterum sanctus, pro ne quod dicunt
+                        sensibus. Lorem ipsum dolor sit amet, <strong>in porro albucius qui</strong>, in nec quod novum
+                        accumsan, mei ludus tamquam dolores id. No sit debitis meliore postulant, per ex prompta alterum
+                        sanctus, pro ne quod dicunt sensibus.</p>
+                    <p>Lorem ipsum dolor sit amet, in porro albucius qui, in nec quod novum accumsan, mei ludus tamquam
+                        dolores id. No sit debitis meliore postulant, per ex prompta alterum sanctus, pro ne quod dicunt
+                        sensibus.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn_1" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+
+
+    <!-- COMMON SCRIPTS -->
+    <script src="{{AWS_BUCKET_NAME}}js/jquery-3.7.0.min.js"></script>
+    <script src="{{AWS_BUCKET_NAME}}js/common_scripts.min.js"></script>
+    <script src="{{AWS_BUCKET_NAME}}js/velocity.min.js"></script>
+    <script src="{{AWS_BUCKET_NAME}}js/common_functions.js"></script>
+    <script src="{{AWS_BUCKET_NAME}}js/file-validator.js"></script>
+
+    <!-- Wizard script-->
+    <script src="{{AWS_BUCKET_NAME}}js/func_1.js"></script>
+    <script>
+        // if success is true in the url, show the success banner, display for 5 seconds
+        const urlParams = new URLSearchParams(window.location.search);
+        const success = urlParams.get('success');
+        if (success) {
+            const banner = document.getElementById("banner");
+            banner.innerHTML = `<div class="alert alert-success" role="alert">
+            <h4 class="alert-heading">Success!</h4>
+            <p style="margin-bottom:-0rem;">Thank you for registering for {{event.displayName}}. Your QR code will be displayed on the carousel at the event.
+                If you have any questions, please contact us at {{event.email}}</p>
+            </div>`;
+            setTimeout(() => {
+                banner.innerHTML = "";
+            }, 6000);
+        }
+        const error = urlParams.get('error');
+        if (error) {
+            const type = urlParams.get('type');
+            if (type === 'blacklist') {
+                const banner = document.getElementById("banner");
+                banner.innerHTML = `<div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">Error!</h4>
+                <p style="margin-bottom:-0rem;">You have been blacklisted from this event. Please contact the event organizer for more information.</p>
+                </div>`;
+                setTimeout(() => {
+                    banner.innerHTML = "";
+                    // hide the form
+                    document.getElementById("wrapped").style.display = "none";
+                }, 6000);
+            } else if(type === 'tld'){
+                const banner = document.getElementById("banner");
+                banner.innerHTML = `<div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">Error!</h4>
+                <p style="margin-bottom:-0rem;">The domain of your website is not allowed for this event. Please contact the event organizer or an resumed technician for more information.</p>
+                </div>`;
+                setTimeout(() => {
+                    banner.innerHTML = "";
+               }, 6000);
+            }else {
+                const banner = document.getElementById("banner");
+                banner.innerHTML = `<div class="alert alert-danger" role="alert">
+            <h4 class="alert-heading">Error!</h4>
+            <p style="margin-bottom:-0rem;">There was an error processing your request. Please try again later.</p>
+            </div>`;
+                setTimeout(() => {
+                    banner.innerHTML = "";
+                }, 6000);
+            }
+        }
+    </script>
+
+</body>
+
+</html>

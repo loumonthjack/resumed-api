@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import Mustache from 'mustache';
-import {AWS_BUCKET_NAME} from '../constants';
+import {AWS_BUCKET_NAME, ENVIRONMENT, SERVER_URL} from '../constants';
 
 const BASE_PATH = '../templates';
 export const AUTH_HTML = fs
@@ -41,6 +41,36 @@ export const ERROR_HTML = fs
 export const CONTACT_HTML = fs
   .readFileSync(path.join(__dirname, `${BASE_PATH}/email/contact.html`))
   .toString();
+export const EVENT_HTML = fs
+  .readFileSync(path.join(__dirname, `${BASE_PATH}/email/event.html`))
+  .toString();
+
+export const NETWORK_EVENT_ONBOARDING_HTML = fs
+  .readFileSync(
+    path.join(
+      __dirname,
+      `${BASE_PATH}/website/networking/event-onboarding.html`
+    )
+  )
+  .toString();
+
+export const NETWORK_USER_ONBOARDING_HTML = fs
+  .readFileSync(
+    path.join(__dirname, `${BASE_PATH}/website/networking/user-onboarding.html`)
+  )
+  .toString();
+
+export const NETWORK_CODE_DISPLAY_HTML = fs
+  .readFileSync(
+    path.join(__dirname, `${BASE_PATH}/website/networking/code-display.html`)
+  )
+  .toString();
+
+export const NETORK_EVENT_UPDATE_HTML = fs
+  .readFileSync(
+    path.join(__dirname, `${BASE_PATH}/website/networking/event-update.html`)
+  )
+  .toString();
 
 export const renderTemplate = (
   template: string,
@@ -65,6 +95,15 @@ export const renderTemplate = (
     },
     contact: CONTACT_HTML,
     error: ERROR_HTML,
+    event: EVENT_HTML,
+    networking: {
+      event: {
+        onboarding: NETWORK_EVENT_ONBOARDING_HTML,
+        userOnboarding: NETWORK_USER_ONBOARDING_HTML,
+        codeDisplay: NETWORK_CODE_DISPLAY_HTML,
+        update: NETORK_EVENT_UPDATE_HTML,
+      },
+    },
   };
   if (!template) return null;
   const assetBucket = {
@@ -77,6 +116,12 @@ export const renderTemplate = (
   }
   if (template === 'contact') {
     return Mustache.render(templates.contact, {
+      ...assetBucket,
+      ...data,
+    });
+  }
+  if (template === 'event') {
+    return Mustache.render(templates.event, {
       ...assetBucket,
       ...data,
     });
@@ -106,6 +151,38 @@ export const renderTemplate = (
       html = templates.premium.light;
     }
   }
+  const networkingConfig = {
+    AWS_BUCKET_NAME: `https://s3.us-west-2.amazonaws.com/${AWS_BUCKET_NAME}/templates/networking/`,
+    SERVER_URL:
+      ENVIRONMENT === 'prod' ? 'https://' + SERVER_URL : 'http://' + SERVER_URL,
+  };
+
+  if (template === 'networking-event-onboarding') {
+    return Mustache.render(templates.networking.event.onboarding, {
+      ...networkingConfig,
+      ...data,
+    });
+  }
+  if (template === 'networking-user-onboarding') {
+    return Mustache.render(templates.networking.event.userOnboarding, {
+      ...networkingConfig,
+      ...data,
+    });
+  }
+  if (template === 'networking-code-display') {
+    return Mustache.render(templates.networking.event.codeDisplay, {
+      ...networkingConfig,
+      ...data,
+      AWS_BUCKET_NAME: `${networkingConfig.AWS_BUCKET_NAME}code-display/`,
+    });
+  }
+  if (template === 'networking-event-update') {
+    return Mustache.render(templates.networking.event.update, {
+      ...networkingConfig,
+      ...data,
+    });
+  }
+
   if (!html) return null;
   return Mustache.render(html, {
     ...assetBucket,

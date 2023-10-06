@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Resumed - Event Networking Registration">
+    <meta name="author" content="Ansonika">
+    <title>Resumed - Update Event | Networking Made Easy</title>
+
+    <!-- Favicons-->
+    <link rel="shortcut icon" href="{{AWS_BUCKET_NAME}}img/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" type="image/x-icon"
+        href="{{AWS_BUCKET_NAME}}img/apple-touch-icon-57x57-precomposed.png">
+    <link rel="apple-touch-icon" type="image/x-icon" sizes="72x72"
+        href="{{AWS_BUCKET_NAME}}img/apple-touch-icon-72x72-precomposed.png">
+    <link rel="apple-touch-icon" type="image/x-icon" sizes="114x114"
+        href="{{AWS_BUCKET_NAME}}img/apple-touch-icon-114x114-precomposed.png">
+    <link rel="apple-touch-icon" type="image/x-icon" sizes="144x144"
+        href="{{AWS_BUCKET_NAME}}img/apple-touch-icon-144x144-precomposed.png">
+
+    <!-- GOOGLE WEB FONT -->
+    <link href="https://fonts.googleapis.com/css?family=Work+Sans:400,500,600" rel="stylesheet">
+
+    <!-- BASE CSS -->
+    <link href="{{AWS_BUCKET_NAME}}css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{AWS_BUCKET_NAME}}css/menu.css" rel="stylesheet">
+    <link href="{{AWS_BUCKET_NAME}}css/style.css" rel="stylesheet">
+    <link href="{{AWS_BUCKET_NAME}}css/vendors.css" rel="stylesheet">
+
+    <!-- YOUR CUSTOM CSS -->
+    <link href="{{AWS_BUCKET_NAME}}css/custom.css" rel="stylesheet">
+
+    <!-- MODERNIZR MENU -->
+    <script src="{{AWS_BUCKET_NAME}}js/modernizr.js"></script>
+    <script type="text/javascript">
+        window.onload = function () {//from ww  w . j  a  va2s. c  o  m
+            var today = new Date().toISOString().split('T')[0];
+            document.getElementsByName("startDate")[0].setAttribute('min', today);
+            const startDate = document.getElementsByName("startDate")[0];
+            const endDate = document.getElementsByName("endDate")[0];
+            startDate.addEventListener("change", (e) => {
+                endDate.setAttribute("min", e.target.value);
+                // start date cannot be more than 30 days in the future, when clicked warn user of 30 day limit using banner
+
+                const today = new Date();
+                const start = new Date(startDate.value);
+                const diffTime = Math.abs(today - start);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if (diffDays > 30) {
+                    document.getElementById("banner").innerHTML = "<div class='alert alert-danger' role='alert'>We only support events that are less than 30 days in the future.</div>";
+                    setTimeout(() => {
+                        document.getElementById("banner").innerHTML = "";
+                    }, 5000);
+                    // disappear after 5 seconds
+                    startDate.value = "";
+                }
+            })
+            // limit start and end date to be max 7 days apart
+            endDate.addEventListener("change", (e) => {
+                const start = new Date(startDate.value);
+                const end = new Date(endDate.value);
+                const diffTime = Math.abs(end - start);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if (diffDays > 7) {
+                    // use  banner to  warn user of 7 day limit
+                    document.getElementById("banner").innerHTML = "<div class='alert alert-danger' role='alert'>We only support events that are less than 7 days in length.</div>";
+                    // disappear after 5 seconds
+                    setTimeout(() => {
+                        document.getElementById("banner").innerHTML = "";
+                    }, 5000);
+                    // reset end date
+                    endDate.value = "";
+                }
+            })
+        }
+    </script>
+</head>
+
+<body>
+
+    <div id="preloader">
+        <div data-loader="circle-side"></div>
+    </div><!-- /Preload -->
+
+    <div id="loader_form">
+        <div data-loader="circle-side-2"></div>
+    </div><!-- /loader_form 
+	
+	<nav>
+		<ul class="cd-primary-nav">
+			<li><a href="index.html" class="animated_link">Version 1</a></li>
+			<li><a href="index-2.html" class="animated_link">Version 2</a></li>
+			<li><a href="index-3.html" class="animated_link">Version 3</a></li>
+			<li><a href="index-4.html" class="animated_link">File Attachment demo</a></li>
+			<li><a href="about.html" class="animated_link">About Us</a></li>
+			<li><a href="contacts.html" class="animated_link">Contact Us</a></li>
+			<li><a href="#0" class="animated_link">Purchase Template</a></li>
+		</ul>
+	</nav>
+	-->
+
+    <div class="container-fluid">
+        <div class="row row-height">
+            <div class="col-xl-4 col-lg-4 content-left">
+                <div class="content-left-wrapper">
+                    <a href="#" id="logo"><img src="{{AWS_BUCKET_NAME}}img/icon.svg" alt="" width="100" height="90"></a>
+                    <div id="social">
+                        <ul>
+                            <li><a href="#0"><i class="icon-facebook"></i></a></li>
+                            <li><a href="#0"><i class="icon-twitter"></i></a></li>
+                            <li><a href="#0"><i class="icon-linkedin"></i></a></li>
+                        </ul>
+                    </div>
+                    <!-- /social -->
+                    <div>
+                        <h2>Revolutionize Networking Events with Resumed</h2>
+                        <p>Unleash the Power of QR Codes for Dynamic Speed Networking</p>
+                        <a href="#start" class="btn_1 rounded mobile_btn yellow">Start Now!</a>
+                    </div>
+                    <div class="copy">© 2022 Resumed</div>
+                </div>
+                <!-- /content-left-wrapper -->
+            </div>
+            <!-- /content-left -->
+            <div class="col-xl-8 col-lg-8 content-right" id="start">
+                <div id="wizard_container">
+                    <div id="top-wizard">
+                        <span id="location"></span>
+                        <div id="progressbar"></div>
+                    </div>
+                    <!-- /top-wizard -->
+                    <!-- get url currently in which is {{SERVER_URL}}/networking/:event/:code -->
+                    <form id="wrapped" method="post"
+                        action="{{SERVER_URL}}/networking/{{event.name}}/{{event.tempKey}}" enctype="multipart/form-data">
+                        <input id="website" name="website" type="text" value="">
+                        <!-- Leave for security protection, read docs for details -->
+                        <div id="middle-wizard">
+                            <div class="step">
+                                <h2 class="section_title">Provide event details.</h2>
+                                <div id="banner"></div>
+                                
+                                <div class="form-group add_top_30">
+                                    <label for="email">Email Address</label>
+                                    <p class="text-muted">{{event.email}}</p>
+                                </div>
+                                <div class="form-group ">
+                                    <label for="name">Event Name</label>
+                                    <input type="text" name="name" id="name" value="{{event.displayName}}"
+                                        class="form-control" onchange="getVals(this, 'name_field');">
+                                </div>
+                                <div class="form-group">
+                                    <label for="startDate">Start Date</label>
+                                    <input type="date" name="startDate" id="startDate" value="{{event.startDate}}"
+                                        class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="endDate">End Date</label>
+                                    <input type="date" name="endDate" id="endDate" value="{{event.endDate}}"
+                                        class="form-control">
+                                </div>
+                                <!--
+                                <label>Theme</label>
+                                <div class="form-group radio_input" hidden>
+                                    <label class="container_radio me-3">Light
+                                        <input type="radio" name="theme" id="theme" value="light"  class="required">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                    <label class="container_radio">Dark
+                                        <input type="radio" name="theme" id="theme" value="dark" class="required">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </div>-->
+                                <div class="form-group add_bottom_30 add_top_20">
+                                    <label>Upload Logo<br><small>(File accepted: .png, .jpeg, .jpg - Max file size:
+                                            150KB)</small></label>
+                                    <div class="fileupload">
+                                        <input type="file" name="fileupload" id="logo" value="{{event.logo}}"
+                                            accept=".png,image/png,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /step-->
+
+                            <!-- /Start Branch ============================== -->
+                            <div class="step" data-state="end">
+                                <h2 class="section_title">Select the domain link to capture.</h2>
+                                <div class="form-group">
+                                    {{#linkedin}}
+                                    <label class="container_radio version_2 active">LinkedIn
+                                        <input type="radio" name="captureType" id="captureType" value="linkedin">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                    {{/linkedin}}
+                                    {{^linkedin}}
+                                    <label class="container_radio version_2">LinkedIn
+                                        <input type="radio" name="captureType" id="captureType" value="linkedin">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                    {{/linkedin}}
+                                    {{#personal}}
+                                    <label class="container_radio version_2 active">Personal Website
+                                        <input type="radio" name="captureType" id="captureType" value="personal">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                    {{/personal}}
+                                    {{^personal}}
+                                    <label class="container_radio version_2">Personal Website
+                                        <input type="radio" name="captureType" id="captureType" value="personal">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                    {{/personal}}
+                                    {{#both}}
+                                    <label class="container_radio version_2 active">Both
+                                        <input type="radio" name="captureType" id="captureType" value="both">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                    {{/both}}
+                                    {{^both}}
+                                    <label class="container_radio version_2">Both
+                                        <input type="radio" name="captureType" id="captureType" value="both">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                    {{/both}}
+                                </div>
+                            </div>
+
+                            <div class="submit step" id="end">
+                                <div class="summary">
+                                    <div class="wrapper">
+                                        <p>We will reach out to you shortly at the email address provided: <strong
+                                                id="email_field"></strong>. This email will contain your QR code creator
+                                            and carousel display information.</p>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="form-group terms">
+                                            <label class="container_check">Please accept our <a href="#"
+                                                    data-bs-toggle="modal" data-bs-target="#terms-txt">Terms and
+                                                    conditions</a> before Submit
+                                                <input type="checkbox" name="terms" value="Yes" class="required">
+                                                <span class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /step last-->
+
+                        </div>
+                        <!-- /middle-wizard -->
+                        <div id="bottom-wizard">
+                            <button type="button" name="backward" class="backward">Prev</button>
+                            <button type="button" name="forward" class="forward">Next</button>
+                            <button type="submit" name="process" class="submit">Submit</button>
+                        </div>
+                        <!-- /bottom-wizard -->
+                    </form>
+                </div>
+                <!-- /Wizard container -->
+            </div>
+            <!-- /content-right-->
+        </div>
+        <!-- /row-->
+    </div>
+    <!-- /container-fluid -->
+
+    <div class="cd-overlay-nav">
+        <span></span>
+    </div>
+    <!-- /cd-overlay-nav -->
+
+    <div class="cd-overlay-content">
+        <span></span>
+    </div>
+    <!-- /cd-overlay-content 
+
+	<a href="#0" class="cd-nav-trigger">Menu<span class="cd-icon"></span></a>
+	 -->
+
+    <!-- Modal terms -->
+    <div class="modal fade" id="terms-txt" tabindex="-1" role="dialog" aria-labelledby="termsLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="termsLabel">Terms and conditions</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Lorem ipsum dolor sit amet, in porro albucius qui, in <strong>nec quod novum accumsan</strong>,
+                        mei ludus tamquam dolores id. No sit debitis meliore postulant, per ex prompta alterum sanctus,
+                        pro ne quod dicunt sensibus.</p>
+                    <p>Lorem ipsum dolor sit amet, in porro albucius qui, in nec quod novum accumsan, mei ludus tamquam
+                        dolores id. No sit debitis meliore postulant, per ex prompta alterum sanctus, pro ne quod dicunt
+                        sensibus. Lorem ipsum dolor sit amet, <strong>in porro albucius qui</strong>, in nec quod novum
+                        accumsan, mei ludus tamquam dolores id. No sit debitis meliore postulant, per ex prompta alterum
+                        sanctus, pro ne quod dicunt sensibus.</p>
+                    <p>Lorem ipsum dolor sit amet, in porro albucius qui, in nec quod novum accumsan, mei ludus tamquam
+                        dolores id. No sit debitis meliore postulant, per ex prompta alterum sanctus, pro ne quod dicunt
+                        sensibus.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn_1" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+
+
+    <!-- COMMON SCRIPTS -->
+    <script src="{{AWS_BUCKET_NAME}}js/jquery-3.7.0.min.js"></script>
+    <script src="{{AWS_BUCKET_NAME}}js/common_scripts.min.js"></script>
+    <script src="{{AWS_BUCKET_NAME}}js/velocity.min.js"></script>
+    <script src="{{AWS_BUCKET_NAME}}js/common_functions.js"></script>
+    <script src="{{AWS_BUCKET_NAME}}js/file-validator.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        const success = urlParams.get('success');
+        const event = JSON.parse(urlParams.get('event'));
+        if (success) {
+            const banner = document.getElementById("banner");
+            banner.innerHTML = `<div class="alert alert-success" role="alert">
+            <h4 class="alert-heading">Successful!</h4>
+            <p style="margin-bottom:-0rem;">We have update ${event.name}. We emailed you at ${event.email}. Your event will be available on ${event.startDate} until ${event.endDate}.
+                If you have any questions, please contact us at support@resumed.website.</p>
+            </div>`;
+            setTimeout(() => {
+                banner.innerHTML = "";
+            }, 6000);
+        }
+        if (error) {
+            const type = urlParams.get('type');
+            if (type === 'exists') {
+                const banner = document.getElementById("banner");
+                banner.innerHTML = `<div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">Error Occurred!</h4>
+                <p style="margin-bottom:-0rem;">This event name has already been taken, please use an unique name for event.</p>
+                </div>`;
+                setTimeout(() => {
+                    banner.innerHTML = "";
+                }, 6000);
+            }
+        }
+
+
+    </script>
+    <!-- Wizard script-->
+    <script src="{{AWS_BUCKET_NAME}}js/func_1.js"></script>
+
+</body>
+
+</html>

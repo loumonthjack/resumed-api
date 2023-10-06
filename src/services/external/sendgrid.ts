@@ -1,8 +1,9 @@
 import sendGrid from '@sendgrid/mail';
 import {AUTH_HTML, WELCOME_HTML, renderTemplate} from '../template';
-import {FRONTEND_URL} from '../../constants';
+import {ENVIRONMENT, FRONTEND_URL, SERVER_URL} from '../../constants';
 import WebsiteDB from '../../models/website';
 import UserDB from '../../models/user';
+import prisma from '../../models/prisma-client';
 
 class Sendgrid {
   private client;
@@ -50,6 +51,48 @@ class Sendgrid {
     });
     if (!template) throw new Error('Template could not be rendered');
     const success = this.sendEmail(to, 'Activate Your Account', template);
+    if (!success) throw new Error('Email could not be sent to' + to);
+    return success;
+  }
+  async sendEventEmail(
+    to: string,
+    data: {
+      event: {
+        name: string;
+        startDate: string;
+        endDate: string;
+      };
+    }
+  ) {
+    const generateTenDigitCode = () => {
+      const code = Math.floor(1000000000 + Math.random() * 9000000000);
+      return code.toString().substring(0, 10);
+    };
+    // update event with code
+    const code = generateTenDigitCode();
+    const event = await prisma.event.update({
+      where: {
+        name: data.event.name,
+      },
+      data: {
+        tempKey: code,
+      },
+    });
+    if (!event) throw new Error('Event could not be found');
+    const template = renderTemplate('event', {
+      event: data.event,
+      authKey: event.tempKey,
+      SERVER_URL:
+        ENVIRONMENT === 'prod'
+          ? 'https://' + SERVER_URL
+          : 'http://' + SERVER_URL,
+    });
+    if (!template) throw new Error('Template could not be rendered');
+    const success = this.sendEmail(
+      to,
+      'Your event has been created on Resumed',
+      template
+    );
     if (!success) throw new Error('Email could not be sent to' + to);
     return success;
   }

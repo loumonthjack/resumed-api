@@ -73,11 +73,37 @@ model Session {
 
 model Website {
   id       String  @id @default(uuid())
-  url      String @unique
+  url      String  @unique
   alias    String?
   theme    String
   status   String  @default("pending")
   template String
   User     User    @relation(fields: [userId], references: [id])
   userId   String  @unique
+}
+
+model Event {
+  id           String           @id @unique
+  name          String @unique
+  email          String
+  logo           String?
+  startDate      DateTime?
+  endDate        DateTime?
+  description    String?
+  terms          Boolean          @default(false)
+  type           String?
+  tempKey        String?        @unique
+  theme          Theme?          @default(LIGHT)
+  EventAttendant EventAttendant[]
+}
+enum Theme {
+  LIGHT
+  DARK
+}
+
+model EventAttendant {
+  id      String @id @default(uuid())
+  url     String
+  event   Event  @relation(fields: [eventId], references: [id])
+  eventId String
 }

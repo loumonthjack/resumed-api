@@ -209,3 +209,19 @@ export const uploadImage = async (file: string, userId: UserType['id']) => {
   const response = await s3.upload(params).promise();
   return response.Location;
 };
+
+export const uploadEventLogo = async (
+  file: string | Buffer,
+  type: string,
+  eventName: string
+) => {
+  const params = {
+    Bucket: AWS_BUCKET_NAME,
+    Key: `events/${eventName}.${type.split('/')[1]}`,
+    ContentType: type,
+    ContentEncoding: 'base64',
+    Body: file,
+  };
+  const response = await s3.upload(params).promise();
+  return response.Location;
+};
