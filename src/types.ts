@@ -3,6 +3,7 @@ export type ResumeType = {
   bio: string;
   education?: EducationType[];
   experience?: ExperienceType[];
+  //projects?: ProjectType[];
   skills?: SkillType[];
   awards?: AwardType[];
   links?: LinkType[];
@@ -13,10 +14,24 @@ export type EducationType = {
   school?: string;
   degree?: string;
   field?: string;
+  achievements?: string[];
   start?: string;
   end?: string;
 };
 
+export type ProjectType = {
+  name?: string;
+  description?: string;
+  url?: string;
+  start?: string;
+  end?: string;
+};
+export type ContactType = {
+  name?: string;
+  email?: string;
+  subject?: string;
+  message?: string;
+};
 export type LinkType = {
   name?: string;
   url?: string;
@@ -25,7 +40,7 @@ export type LinkType = {
 export type ExperienceType = {
   company?: string;
   position?: string;
-  description?: string;
+  achievements?: string[];
   start?: string;
   end?: string;
 };
@@ -36,6 +51,7 @@ export type SkillType = {
 
 export type AwardType = {
   title?: string;
+  description?: string;
   date?: string;
 };
 
@@ -51,15 +67,6 @@ export type UserType = {
   isOnboarding: boolean;
   onboardingStage: number;
   type: string | null;
-};
-
-export type SocialType = {
-  id: string;
-  facebook: string;
-  twitter: string;
-  linkedin: string;
-  instagram: string;
-  github: string;
 };
 
 export type SessionType = {
@@ -79,11 +86,6 @@ export type WebsiteType = {
   status: 'pending' | 'complete' | 'error';
   alias?: string;
   theme: string;
-};
-
-export type DocumentType = {
-  id: string;
-  type: 'json' | 'pdf' | 'html' | 'txt';
 };
 
 export type SERVICE_NAMES =

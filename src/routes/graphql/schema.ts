@@ -10,6 +10,7 @@ const typeDefs = gql`
     user: User
     webhook: String
     domainAvailability(domain: String!): Boolean
+    checkEmail(email: String!): Boolean # Check if email bounce or not
   }
   type Mutation {
     login(emailOrUserName: String!): AuthResponse
@@ -74,6 +75,7 @@ const typeDefs = gql`
     school: String!
     degree: String!
     field: String!
+    achievements: [String]!
     start: String
     end: String
   }
@@ -81,7 +83,7 @@ const typeDefs = gql`
   type Experience {
     company: String!
     position: String!
-    description: String
+    achievements: [String]!
     start: String
     end: String
   }
@@ -92,6 +94,7 @@ const typeDefs = gql`
 
   type Award {
     title: String!
+    description: String
     date: String
   }
 
@@ -99,13 +102,14 @@ const typeDefs = gql`
     school: String!
     degree: String!
     field: String!
+    achievements: [String]
     start: String
     end: String
   }
   input ExperienceInput {
     company: String!
     position: String!
-    description: String
+    achievements: [String]
     start: String
     end: String
   }

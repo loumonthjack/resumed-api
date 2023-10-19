@@ -1,5 +1,12 @@
 import ResumeDB from '../models/resume';
-import {ExperienceType, ResumeType} from '../types';
+import {
+  AwardType,
+  EducationType,
+  ExperienceType,
+  LinkType,
+  ResumeType,
+  SkillType,
+} from '../types';
 import {ErrorResponse} from '../util/message';
 import BaseService from './base';
 import {uploadResume} from './external/aws';
@@ -14,7 +21,7 @@ interface Response {
   code: number;
 }
 class ResumeService extends BaseService<'ResumeService'> {
-  async improve(
+  /*async improve(
     userId: string,
     field: 'bio' | 'experience' | 'education' | 'skills' | 'awards' | 'links',
     arrayNumber?: number
@@ -32,7 +39,7 @@ class ResumeService extends BaseService<'ResumeService'> {
     } else if (field === 'experience') {
       if (!arrayNumber) return ErrorResponse();
       const experience = data[arrayNumber] as ExperienceType;
-      const description = experience.description;
+      const description = experience.achievements;
       if (!description) return ErrorResponse();
       enhanceData = description;
     }
@@ -49,7 +56,7 @@ class ResumeService extends BaseService<'ResumeService'> {
         };
       } else if (field === 'experience') {
         const experience = resume?.experience![arrayNumber!];
-        experience!.description = changedData;
+        experience!.achievements = changedData;
         return {
           bio: resume?.bio,
           education: resume?.education,
@@ -77,7 +84,7 @@ class ResumeService extends BaseService<'ResumeService'> {
     const response = await this.upsert(userId, enhance);
     if (!response.resume) return ErrorResponse();
     return this.response({resume: response.resume});
-  }
+  }*/
   async get(userId: string): Promise<Response> {
     const userResponse = await User.get(userId);
     if (!userResponse.user) return ErrorResponse(userResponse.message);
@@ -129,32 +136,43 @@ class ResumeService extends BaseService<'ResumeService'> {
     const pages = await readPdfText(link);
     if (!pages) return ErrorResponse();
 
-    const educationData = {
+    const educationData: EducationType = {
       school: '',
       degree: '',
       field: '',
       start: '',
       end: '',
+      achievements: [],
     };
-    const experienceData = {
+    const experienceData: ExperienceType = {
       company: '',
       position: '',
-      description: '',
+      achievements: [],
       start: '',
       end: '',
     };
-    const skillData = {
+    const skillData: SkillType = {
       name: '',
     };
-    const awardData = {
+    const awardData: AwardType = {
       title: '',
+      description: '',
       date: '',
     };
-    const linkData = {
+    const linkData: LinkType = {
       name: '',
       url: '',
     };
-    const data = {
+    const data: Pick<
+      ResumeType,
+      'bio' | 'education' | 'experience' | 'skills' | 'awards' | 'links'
+    > & {
+      education: EducationType[];
+      experience: ExperienceType[];
+      skills: SkillType[];
+      awards: AwardType[];
+      links: LinkType[];
+    } = {
       bio: '',
       education: [educationData],
       experience: [experienceData],
@@ -163,6 +181,7 @@ class ResumeService extends BaseService<'ResumeService'> {
       links: [linkData],
     };
     const resumeString = JSON.stringify(data);
+
     const prompt = `This is a resume. Please fill in the following fields with the data from the resume.
     ${resumeString}, Remove and clean data, here is data:${pages[0].lines}:
     Map as much data as possible, Delete any data that is not mapped to the resume data. Create a resume from the data. 
