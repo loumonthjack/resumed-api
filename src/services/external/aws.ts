@@ -19,6 +19,9 @@ import {
   S3Client,
   CreateBucketCommand,
   PutPublicAccessBlockCommand,
+  BucketCannedACL,
+  BucketLocationConstraint,
+  ObjectOwnership,
 } from '@aws-sdk/client-s3';
 import path from 'path';
 import User from '../user';
@@ -92,14 +95,14 @@ export const createWebsite = async (userId: UserType['id']) => {
 
   const input = {
     // CreateBucketRequest
-    ACL: 'public-read',
+    ACL: BucketCannedACL.public_read,
     Bucket: s3Url, // required
     CreateBucketConfiguration: {
       // CreateBucketConfiguration
-      LocationConstraint: AWS_REGION,
+      LocationConstraint: BucketLocationConstraint.us_east_2,
     },
     ObjectLockEnabledForBucket: false,
-    ObjectOwnership: 'ObjectWriter',
+    ObjectOwnership: ObjectOwnership.ObjectWriter,
   };
   const command = new CreateBucketCommand(input);
   const response = await client.send(command);
